@@ -1,0 +1,259 @@
+{
+  "versie": 1775634919225,
+  "bevitems": [
+    {
+      "id": "erfwater",
+      "label": "Hemelwater erf afspoeling (schoon)",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Bodem",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp. water",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "N.v.t.",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "afsluiten",
+      "label": "Afspuiten machines",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Bodem",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp.water",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "N.v.t",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "vastemest",
+      "label": "Vaste mestopslag",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Bodem",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp. water",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "N.v.t",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "voer",
+      "label": "Voeropslag",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Bodem",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp. water",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "Opslagtank",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "N.v.t",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "bijproducten",
+      "label": "Bijproducten",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Bodem",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp.water",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "n.v.t.",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "melkmachine",
+      "label": "Melkmachine spoelwater",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Bodem",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp. water",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "N.v.t.",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "mestopslag",
+      "label": "Mestopslag",
+      "opties": [
+        {
+          "tekst": "Silo",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Slurf",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "N.v.t.",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "erfveeg",
+      "label": "Erf veegschoon",
+      "opties": [
+        {
+          "tekst": "Ja",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Nee",
+          "kleur": "nok"
+        },
+        {
+          "tekst": "Kan beter",
+          "kleur": "nvt"
+        }
+      ]
+    },
+    {
+      "id": "custom_1775634834729",
+      "label": "Ontijzeringsinstallatie",
+      "opties": [
+        {
+          "tekst": "Aanwezig",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Niet aanwezig",
+          "kleur": "ok"
+        }
+      ]
+    },
+    {
+      "id": "custom_1775634903089",
+      "label": "Lozing ontijzeringsinstallatie",
+      "opties": [
+        {
+          "tekst": "Riool",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Mestkelder",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "Opp. water",
+          "kleur": "ok"
+        },
+        {
+          "tekst": "N.v.t",
+          "kleur": "nvt"
+        }
+      ]
+    }
+  ],
+  "ontvangers": [
+    {
+      "naam": "Remko Meijer",
+      "email": "remko.meijer@noorderzijlvest.nl"
+    },
+    {
+      "naam": "Jan Berends",
+      "email": "j.berends@noorderzijlvest.nl"
+    },
+    {
+      "naam": "Klaas Kuiper",
+      "email": "k.kuiper@noorderzijlvest.nl"
+    },
+    {
+      "naam": "Jan Willem Zoer",
+      "email": "j.w.zoer@noorderzijlvest.nl"
+    },
+    {
+      "naam": "Bob Boonstra",
+      "email": "b.boonstra@noorderzijlvest.nl"
+    }
+  ]
+}
