@@ -596,6 +596,9 @@
   <button class="nav-tab" id="heterdaadTabBtn" onclick="goTab(6)" style="display:none;background:#FFF0F0;color:var(--rood);border-bottom:3px solid transparent;">
     <span class="tab-check" id="check6"></span> 🚨 Heterdaad
   </button>
+  <button class="nav-tab" id="piketTabBtn" onclick="goTab(7)" style="display:none;background:#FFF8E1;color:#E65100;border-bottom:3px solid transparent;">
+    <span class="tab-check" id="check7"></span> 🔔 Piket
+  </button>
 </div>
 
 <!-- SECTIE 0: ALGEMEEN -->
@@ -630,6 +633,7 @@
         <option value="regulier">Reguliere controle</option>
         <option value="hercontrole">Hercontrole</option>
         <option value="heterdaad">🚨 Heterdaad (GBM)</option>
+        <option value="piket">🔔 Piket</option>
       </select>
     </div>
     <div id="bedrijfstypeWrap" class="field">
@@ -988,6 +992,132 @@
 
 
 
+
+<!-- SECTIE 7: PIKET -->
+<div class="section pb" id="sec7" style="display:none;">
+  <div class="card" style="border-color:#E65100;border-width:2px;">
+    <div class="card-title" style="color:#E65100;">🔔 Piketmelding</div>
+    <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van de piketmelding.</p>
+  </div>
+
+  <!-- Melding binnengekomen via -->
+  <div class="card">
+    <div class="card-title">1. Melding binnengekomen via</div>
+    <div class="field">
+      <label>Kanaal</label>
+      <select id="piket_kanaal">
+        <option value="">— Selecteer —</option>
+        <option>Meldkamer</option>
+        <option>Pricom</option>
+        <option>Telefoon</option>
+        <option>Overige</option>
+      </select>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Datum melding</label>
+        <input type="date" id="piket_datum_melding">
+      </div>
+      <div class="field">
+        <label>Tijdstip melding</label>
+        <input type="time" id="piket_tijdstip_melding">
+      </div>
+    </div>
+  </div>
+
+  <!-- Soort calamiteit -->
+  <div class="card">
+    <div class="card-title">2. Soort calamiteit</div>
+    <div class="field">
+      <label>Type calamiteit</label>
+      <select id="piket_calamiteit">
+        <option value="">— Selecteer —</option>
+        <option>Voertuig te water</option>
+        <option>Brand</option>
+        <option>Olie op oppervlaktewater</option>
+        <option>Bodemsanering</option>
+        <option>Persleiding</option>
+        <option>Overige</option>
+      </select>
+    </div>
+    <div class="field" id="piket_calamiteit_overig_field" style="display:none;">
+      <label>Omschrijving calamiteit</label>
+      <input type="text" id="piket_calamiteit_overig" placeholder="Omschrijf de calamiteit">
+    </div>
+  </div>
+
+  <!-- Locatie -->
+  <div class="card">
+    <div class="card-title">3. Locatie calamiteit</div>
+    <div class="field">
+      <label>Adres / Omschrijving locatie</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="piket_locatie" placeholder="Adres of omschrijving" style="flex:1;">
+        <button onclick="getGPSpiket()" id="piket_gps_btn" style="flex-shrink:0;padding:10px 12px;background:var(--lichtblauw);color:white;border:none;border-radius:8px;cursor:pointer;font-size:16px;">📡</button>
+      </div>
+      <div id="piket_gps_status" style="font-size:11px;color:var(--grijs);margin-top:4px;min-height:14px;"></div>
+    </div>
+    <div class="field">
+      <label>Tijdstip ter plaatse</label>
+      <input type="time" id="piket_tijdstip_plaatse">
+    </div>
+  </div>
+
+  <!-- GRIP -->
+  <div class="card">
+    <div class="card-title">4. GRIP niveau</div>
+    <div class="field">
+      <div class="radio-group horizontal" id="piket_grip">
+        <label class="radio-option" onclick="selectRadio('piket_grip',this)"><input type="radio" name="piket_grip" value="Geen GRIP"><span class="radio-dot"></span> Geen</label>
+        <label class="radio-option" onclick="selectRadio('piket_grip',this)"><input type="radio" name="piket_grip" value="GRIP 1"><span class="radio-dot"></span> GRIP 1</label>
+        <label class="radio-option" onclick="selectRadio('piket_grip',this)"><input type="radio" name="piket_grip" value="GRIP 2"><span class="radio-dot"></span> GRIP 2</label>
+        <label class="radio-option" onclick="selectRadio('piket_grip',this)"><input type="radio" name="piket_grip" value="GRIP 3"><span class="radio-dot"></span> GRIP 3</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVD / Contactpersoon -->
+  <div class="card">
+    <div class="card-title">5. OvD / Contactpersoon</div>
+    <div class="field">
+      <label>Naam OvD</label>
+      <input type="text" id="piket_ovd" placeholder="Naam officier van dienst">
+    </div>
+    <div class="field">
+      <label>Andere contactpersoon (optioneel)</label>
+      <input type="text" id="piket_contact" placeholder="Naam + telefoonnummer">
+    </div>
+  </div>
+
+  <!-- Foto's -->
+  <div class="card">
+    <div class="card-title">6. Foto's</div>
+    <div style="display:flex;gap:10px;margin-bottom:10px;">
+      <button onclick="document.getElementById('piketFotoCamera').click()" style="flex:1;padding:12px;background:var(--lichtblauw);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">📷 Camera</button>
+      <button onclick="document.getElementById('piketFotoBestand').click()" style="flex:1;padding:12px;background:var(--grijs);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">🖼 Bestand</button>
+    </div>
+    <input type="file" id="piketFotoCamera" accept="image/*" capture="environment" style="display:none;" onchange="handlePiketFotos(event)">
+    <input type="file" id="piketFotoBestand" accept="image/*" multiple style="display:none;" onchange="handlePiketFotos(event)">
+    <div class="foto-grid" id="piketFotoGrid"></div>
+  </div>
+
+  <!-- Opmerking -->
+  <div class="card">
+    <div class="card-title">7. Opmerking</div>
+    <div class="field">
+      <textarea id="piket_opmerking" placeholder="Aanvullende opmerkingen..." style="min-height:100px;"></textarea>
+    </div>
+  </div>
+
+  <!-- PDF Download -->
+  <div class="card">
+    <button onclick="downloadPiketPDF()" style="width:100%;padding:13px;background:var(--lichtblauw);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
+      ⬇️ PDF Piketrapport downloaden
+    </button>
+  </div>
+
+</div>
+
 <div class="bottom-bar">
   <button class="btn-prev" id="prevBtn" onclick="prevTab()" style="display:none;">‹ Vorige</button>
   <button class="btn-next" id="nextBtn" onclick="nextTab()">Volgende ›</button>
@@ -1009,7 +1139,7 @@
 <script>
 // ===== STATE =====
 let currentTab = 0;
-const totalTabs = 6;
+const totalTabs = 8;
 let gpsLat = null, gpsLon = null, gpsAcc = null;
 let fotos = []; // { dataUrl, label }
 let bevindingen = {}; // { id: waarde }
@@ -1023,6 +1153,7 @@ const BEVITEMS_VEEHOUDERIJ = [
   { id: 'bijproducten', label: 'Bijproducten', opties: ["Riool", "Bodem", "Mestkelder", "Opp.water", "n.v.t."], optieKleuren: ["ok", "ok", "ok", "nok", "nvt"], waarschuwing: 'Opp.water' },
   { id: 'melkmachine', label: 'Melkmachine spoelwater', opties: ["Riool", "Bodem", "Mestkelder", "Opp. water", "N.v.t."], optieKleuren: ["ok", "ok", "ok", "nok", "nvt"], waarschuwing: 'Opp. water' },
   { id: 'mestopslag', label: 'Mestopslag', opties: ["Silo", "Slurf", "N.v.t."], optieKleuren: ["ok", "nok", "nvt"] },
+  { id: 'ontijzering', label: 'Ontijzeringsinstallatie', opties: ["Aanwezig", "Niet aanwezig"], optieKleuren: ["ok", "nvt"], ontijzering: true },
   { id: 'erfveeg', label: 'Erf veegschoon', opties: ["Ja", "Nee", "Kan beter"], optieKleuren: ["ok", "nok", "nvt"] }
 ];
 
@@ -1042,6 +1173,16 @@ const BEVITEMS = BEVITEMS_VEEHOUDERIJ;
 function wisselTypeControle(type) {
   const bedrijfstypeWrap = document.getElementById('bedrijfstypeWrap');
   const heterdaadTab = document.getElementById('heterdaadTabBtn');
+  const piketTab = document.getElementById('piketTabBtn');
+
+  // Verberg alle speciale tabs eerst
+  if (heterdaadTab) heterdaadTab.style.display = 'none';
+  if (piketTab) piketTab.style.display = 'none';
+  const sec6 = document.getElementById('sec6');
+  const sec7 = document.getElementById('sec7');
+  if (sec6) sec6.style.display = 'none';
+  if (sec7) sec7.style.display = 'none';
+  if (currentTab === 6 || currentTab === 7) goTab(0);
 
   if (type === 'heterdaad') {
     bedrijfstypeWrap.style.display = 'none';
@@ -1049,16 +1190,24 @@ function wisselTypeControle(type) {
     document.getElementById('bedrijfstypeInfo').style.display = 'none';
     window._actiefBevItems = null;
     herbouwBevMatrix();
-    if (heterdaadTab) { heterdaadTab.style.display = 'flex'; }
+    if (heterdaadTab) heterdaadTab.style.display = 'flex';
     setTimeout(() => goTab(6), 300);
+  } else if (type === 'piket') {
+    bedrijfstypeWrap.style.display = 'none';
+    document.getElementById('bedrijfstype').value = '';
+    document.getElementById('bedrijfstypeInfo').style.display = 'none';
+    window._actiefBevItems = null;
+    herbouwBevMatrix();
+    if (piketTab) piketTab.style.display = 'flex';
+    // Auto-invullen datum en tijdstip melding
+    const now = new Date();
+    const dm = document.getElementById('piket_datum_melding');
+    const tm = document.getElementById('piket_tijdstip_melding');
+    if (dm && !dm.value) dm.value = now.toISOString().split('T')[0];
+    if (tm && !tm.value) tm.value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    setTimeout(() => goTab(7), 300);
   } else {
-    // Niet heterdaad — verberg tab altijd en verberg sectie
     bedrijfstypeWrap.style.display = 'block';
-    if (heterdaadTab) heterdaadTab.style.display = 'none';
-    const sec6 = document.getElementById('sec6');
-    if (sec6) sec6.style.display = 'none';
-    // Als we op tab 6 stonden, ga terug naar tab 0
-    if (currentTab === 6) goTab(0);
   }
 }
 
@@ -1462,7 +1611,25 @@ function setBev(id, status, btn, isWaarschuwing) {
     if (warn) warn.style.display = 'none';
   }
 
-  // Erf veegschoon koppeling
+  // Ontijzeringsinstallatie koppeling
+  if (id === 'ontijzering') {
+    const lozingRow = document.getElementById('ontijzering_lozing_row');
+    const actief = bevindingen['ontijzering'];
+    const waarde = Array.isArray(actief) ? actief[0] : actief;
+    if (lozingRow) lozingRow.style.display = waarde === 'Aanwezig' ? 'block' : 'none';
+    if (waarde !== 'Aanwezig') {
+      // Wis lozing als installatie niet aanwezig
+      delete bevindingen['ontijzering_lozing'];
+      document.querySelectorAll('#bev_val_ontijzering_lozing').forEach(el => el.textContent = '');
+      document.querySelectorAll('[onclick*="ontijzering_lozing"]').forEach(b => b.classList.remove('active'));
+    }
+  }
+
+  // Opp.water waarschuwing bij ontijzering lozing
+  if (id === 'ontijzering_lozing') {
+    const warn = document.getElementById('warn_ontijzering_lozing');
+    if (warn) warn.style.display = (status === 'Opp.water' && btn.classList.contains('active')) ? 'block' : 'none';
+  }
   if (id === 'erfveeg') {
     const actief = bevindingen['erfveeg'];
     const laatste = Array.isArray(actief) ? actief[actief.length-1] : actief;
@@ -2063,6 +2230,15 @@ function resetFormulier(metBevestiging) {
   const sec6 = document.getElementById('sec6');
   if (sec6) sec6.style.display = 'none';
 
+  // Piket velden wissen
+  ['piket_kanaal','piket_calamiteit','piket_locatie','piket_ovd','piket_contact','piket_opmerking','piket_tijdstip_melding','piket_datum_melding','piket_tijdstip_plaatse','piket_calamiteit_overig'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('input[name="piket_grip"]').forEach(r => r.checked = false);
+  piketFotos = [];
+  renderPiketFotos();
+
   // Terug naar tab 0
   goTab(0);
   showToast('🗑 Formulier gewist — klaar voor nieuwe inspectie');
@@ -2293,6 +2469,18 @@ function herbouwBevMatrix() {
       <div style="display:flex;flex-wrap:wrap;margin-top:4px;">${btns}</div>
       <div id="bev_val_${item.id}" style="font-size:11px;color:var(--grijs);margin-top:3px;min-height:14px;"></div>
       ${item.waarschuwing ? `<div id="warn_${item.id}" style="font-size:10px;color:var(--rood);margin-top:2px;display:none;">⚠️ Lozing op oppervlaktewater is niet toegestaan!</div>` : ''}
+      ${item.ontijzering ? `
+        <div id="ontijzering_lozing_row" style="display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--rand);">
+          <div style="font-size:12px;font-weight:600;color:var(--tekst);margin-bottom:6px;">Lozing ontijzeringsinstallatie</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;">
+            <button class="bev-btn ok" onclick="setBev('ontijzering_lozing','Riool',this,'false')" style="font-size:11px;padding:5px 10px;">Riool</button>
+            <button class="bev-btn ok" onclick="setBev('ontijzering_lozing','Mestkelder',this,'false')" style="font-size:11px;padding:5px 10px;">Mestkelder</button>
+            <button class="bev-btn nok" onclick="setBev('ontijzering_lozing','Opp.water',this,'true')" style="font-size:11px;padding:5px 10px;">Opp.water ⚠️</button>
+            <button class="bev-btn nvt" onclick="setBev('ontijzering_lozing','N.v.t.',this,'false')" style="font-size:11px;padding:5px 10px;">N.v.t.</button>
+          </div>
+          <div id="bev_val_ontijzering_lozing" style="font-size:11px;color:var(--grijs);margin-top:3px;min-height:14px;"></div>
+          <div id="warn_ontijzering_lozing" style="font-size:10px;color:var(--rood);margin-top:2px;display:none;">⚠️ Lozing op oppervlaktewater is niet toegestaan!</div>
+        </div>` : ''}
     `;
     matrix.appendChild(row);
   });
@@ -2432,6 +2620,8 @@ goTab = function(n) {
   // Heterdaad tab 6 — zorg dat sectie zichtbaar is
   const sec6 = document.getElementById('sec6');
   if (sec6) sec6.style.display = n === 6 ? 'block' : 'none';
+  const sec7 = document.getElementById('sec7');
+  if (sec7) sec7.style.display = n === 7 ? 'block' : 'none';
 };
 
 
@@ -2463,6 +2653,205 @@ function koppelHandhaverAanMail(naam) {
       }
     }
   }
+}
+
+
+// ===== PIKET FOTOS =====
+let piketFotos = [];
+
+function handlePiketFotos(event) {
+  const files = Array.from(event.target.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      piketFotos.push({ dataUrl: e.target.result });
+      renderPiketFotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function renderPiketFotos() {
+  const grid = document.getElementById('piketFotoGrid');
+  if (!grid) return;
+  grid.innerHTML = piketFotos.map((f, i) => `
+    <div class="foto-item" style="position:relative;">
+      <img src="${f.dataUrl}" style="width:100%;height:80px;object-fit:cover;border-radius:8px;">
+      <button onclick="verwijderPiketFoto(${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.6);color:white;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;">✕</button>
+    </div>`).join('');
+}
+
+function verwijderPiketFoto(i) {
+  piketFotos.splice(i, 1);
+  renderPiketFotos();
+}
+
+// ===== PIKET GPS =====
+function getGPSpiket() {
+  const btn = document.getElementById('piket_gps_btn');
+  const status = document.getElementById('piket_gps_status');
+  if (btn.dataset.bezig === 'true') {
+    btn.dataset.bezig = 'false';
+    btn.textContent = '📡';
+    status.textContent = 'GPS geannuleerd.';
+    return;
+  }
+  btn.dataset.bezig = 'true';
+  btn.textContent = '✕';
+  status.textContent = '📡 GPS bepalen...';
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    btn.dataset.bezig = 'false';
+    btn.textContent = '📡';
+    const lat = pos.coords.latitude.toFixed(6);
+    const lon = pos.coords.longitude.toFixed(6);
+    const acc = Math.round(pos.coords.accuracy);
+    status.textContent = '✅ GPS vastgelegd (±' + acc + 'm) · Adres ophalen...';
+    fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lon + '&format=json')
+      .then(r => r.json())
+      .then(data => {
+        const a = data.address || {};
+        const straat = a.road || a.pedestrian || '';
+        const nummer = a.house_number || '';
+        const stad = a.city || a.town || a.village || '';
+        const adres = (straat + (nummer ? ' ' + nummer : '') + (stad ? ', ' + stad : '')).trim();
+        if (adres) document.getElementById('piket_locatie').value = adres;
+        status.textContent = '✅ Locatie ingevuld (±' + acc + 'm)';
+      })
+      .catch(() => { status.textContent = '✅ GPS vastgelegd (±' + acc + 'm)'; });
+  }, err => {
+    btn.dataset.bezig = 'false';
+    btn.textContent = '📡';
+    status.textContent = '⚠️ GPS niet beschikbaar — vul locatie handmatig in';
+  }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 });
+}
+
+// ===== CALAMITEIT OVERIG TONEN =====
+document.addEventListener('DOMContentLoaded', () => {
+  const cal = document.getElementById('piket_calamiteit');
+  if (cal) cal.addEventListener('change', function() {
+    const overig = document.getElementById('piket_calamiteit_overig_field');
+    if (overig) overig.style.display = this.value === 'Overige' ? 'block' : 'none';
+  });
+});
+
+// ===== PIKET PDF =====
+function downloadPiketPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const blauw = [0, 63, 114];
+  const oranje = [230, 81, 0];
+  const grijs = [107, 124, 143];
+
+  // Header
+  doc.setFillColor(...blauw);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('Waterschap Noorderzijlvest', 14, 11);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Piketrapport calamiteit', 14, 19);
+
+  // Datum/tijd
+  const now = new Date();
+  doc.setFontSize(8);
+  doc.text(now.toLocaleDateString('nl-NL') + ' ' + now.toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'}), 196, 19, {align:'right'});
+
+  let y = 36;
+  doc.setTextColor(0,0,0);
+
+  function addSection(titel) {
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFillColor(...oranje);
+    doc.rect(14, y, 182, 7, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(titel, 17, y + 5);
+    doc.setTextColor(0,0,0);
+    doc.setFont('helvetica', 'normal');
+    y += 10;
+  }
+
+  function addRow(label, waarde) {
+    if (!waarde) return;
+    if (y > 270) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...grijs);
+    doc.text(label, 14, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0,0,0);
+    doc.setFontSize(9);
+    const lijnen = doc.splitTextToSize(waarde, 120);
+    doc.text(lijnen, 75, y);
+    y += lijnen.length * 5 + 2;
+  }
+
+  // Handhaver
+  const handhaver = document.getElementById('inspecteur').value;
+  const datum = document.getElementById('datum').value;
+  const tijdstip = document.getElementById('tijdstip').value;
+
+  addSection('PIKETMELDING GEGEVENS');
+  addRow('Handhaver', handhaver);
+  addRow('Datum', datum);
+  addRow('Tijdstip aankomst', tijdstip);
+  addRow('Melding via', document.getElementById('piket_kanaal').value);
+  addRow('Datum melding', document.getElementById('piket_datum_melding').value);
+  addRow('Tijdstip melding', document.getElementById('piket_tijdstip_melding').value);
+  addRow('Tijdstip ter plaatse', document.getElementById('piket_tijdstip_plaatse').value);
+
+  addSection('CALAMITEIT');
+  const grip = document.querySelector('input[name="piket_grip"]:checked');
+  addRow('GRIP niveau', grip ? grip.value : '');
+  const cal = document.getElementById('piket_calamiteit').value;
+  const calOverig = document.getElementById('piket_calamiteit_overig').value;
+  addRow('Soort calamiteit', cal === 'Overige' && calOverig ? 'Overige: ' + calOverig : cal);
+  addRow('Locatie', document.getElementById('piket_locatie').value);
+
+  addSection('CONTACTEN');
+  addRow('OvD', document.getElementById('piket_ovd').value);
+  addRow('Contactpersoon', document.getElementById('piket_contact').value);
+
+  const opmerking = document.getElementById('piket_opmerking').value;
+  if (opmerking) {
+    addSection('OPMERKINGEN');
+    const lijnen = doc.splitTextToSize(opmerking, 175);
+    doc.setFontSize(9);
+    lijnen.forEach(l => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.text(l, 14, y);
+      y += 5;
+    });
+    y += 3;
+  }
+
+  // Foto's
+  if (piketFotos.length > 0) {
+    addSection("FOTO'S");
+    let x = 14;
+    piketFotos.forEach((f, i) => {
+      if (x + 58 > 196) { x = 14; y += 48; }
+      if (y > 250) { doc.addPage(); y = 20; x = 14; }
+      try { doc.addImage(f.dataUrl, 'JPEG', x, y, 55, 40); } catch(e) {}
+      x += 60;
+    });
+    y += 48;
+  }
+
+  // Voettekst
+  doc.setFontSize(7);
+  doc.setTextColor(...grijs);
+  doc.text('Waterschap Noorderzijlvest — Piketrapport', 14, 290);
+  doc.text(now.toLocaleDateString('nl-NL'), 196, 290, {align:'right'});
+
+  const filename = 'piketrapport_' + datum + '.pdf';
+  doc.save(filename);
+  showToast('✅ Piketrapport gedownload');
 }
 
 // ===== NETWERK STATUS =====
