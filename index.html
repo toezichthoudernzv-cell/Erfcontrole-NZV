@@ -1524,11 +1524,14 @@ function goTab(n) {
   // Speciale secties altijd verbergen tenzij actief
   [6,7].forEach(i => {
     const s = document.getElementById('sec' + i);
-    if (s && i !== n) {
-      s.classList.remove('active');
-      s.style.display = 'none';
-    } else if (s && i === n) {
-      s.style.display = 'block';
+    if (s) {
+      if (i === n) {
+        s.style.cssText = 'display:block !important;';
+        s.classList.add('active');
+      } else {
+        s.style.cssText = 'display:none !important;';
+        s.classList.remove('active');
+      }
     }
   });
 
