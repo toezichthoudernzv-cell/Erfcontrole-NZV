@@ -823,7 +823,7 @@
 </div>
 
 <!-- SECTIE 6: HETERDAAD GBM -->
-<div class="section pb" id="sec6" style="display:none;">
+<div class="section pb" id="sec6">
   <div class="card" style="border-color:var(--rood);border-width:2px;">
     <div class="card-title" style="color:var(--rood);">🚨 Heterdaad controle gewasbeschermingsmiddelen</div>
     <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van boven naar beneden. De dopbeoordeling en machine-herkenning staan bewust onderaan — AI gebruikt alle eerder ingevulde gegevens voor een beter oordeel.</p>
@@ -1025,7 +1025,7 @@
 
 
 <!-- SECTIE 7: PIKET -->
-<div class="section pb" id="sec7" style="display:none;">
+<div class="section pb" id="sec7">
   <div class="card" style="border-color:#E65100;border-width:2px;">
     <div class="card-title" style="color:#E65100;">🔔 Piketmelding</div>
     <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van de piketmelding.</p>
@@ -1524,7 +1524,12 @@ function goTab(n) {
   // Speciale secties altijd verbergen tenzij actief
   [6,7].forEach(i => {
     const s = document.getElementById('sec' + i);
-    if (s && i !== n) s.classList.remove('active');
+    if (s && i !== n) {
+      s.classList.remove('active');
+      s.style.display = 'none';
+    } else if (s && i === n) {
+      s.style.display = 'block';
+    }
   });
 
   // Nav tabs
