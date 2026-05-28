@@ -415,16 +415,17 @@
   }
   .btn-next {
     flex: 1;
-    padding: 12px;
+    padding: 15px;
     background: var(--lichtblauw);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,63,114,0.3);
   }
   .btn-next:active { transform: scale(0.98); }
   .btn-next.verzenden { background: var(--groen); }
@@ -823,7 +824,7 @@
 </div>
 
 <!-- SECTIE 6: HETERDAAD GBM -->
-<div class="section pb" id="sec6">
+<div class="section pb" id="sec6" style="display:none;">
   <div class="card" style="border-color:var(--rood);border-width:2px;">
     <div class="card-title" style="color:var(--rood);">🚨 Heterdaad controle gewasbeschermingsmiddelen</div>
     <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van boven naar beneden. De dopbeoordeling en machine-herkenning staan bewust onderaan — AI gebruikt alle eerder ingevulde gegevens voor een beter oordeel.</p>
@@ -1025,7 +1026,7 @@
 
 
 <!-- SECTIE 7: PIKET -->
-<div class="section pb" id="sec7">
+<div class="section pb" id="sec7" style="display:none;">
   <div class="card" style="border-color:#E65100;border-width:2px;">
     <div class="card-title" style="color:#E65100;">🔔 Piketmelding</div>
     <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van de piketmelding.</p>
@@ -1524,15 +1525,7 @@ function goTab(n) {
   // Speciale secties altijd verbergen tenzij actief
   [6,7].forEach(i => {
     const s = document.getElementById('sec' + i);
-    if (s) {
-      if (i === n) {
-        s.style.cssText = 'display:block !important;';
-        s.classList.add('active');
-      } else {
-        s.style.cssText = 'display:none !important;';
-        s.classList.remove('active');
-      }
-    }
+    if (s && i !== n) s.classList.remove('active');
   });
 
   // Nav tabs
@@ -1583,14 +1576,22 @@ function prevTab() {
 }
 
 function updateNav() {
+  const type = document.getElementById('typeControle') ? document.getElementById('typeControle').value : '';
   document.getElementById('prevBtn').style.display = currentTab === 0 ? 'none' : 'block';
   const nextBtn = document.getElementById('nextBtn');
-  if (currentTab === totalTabs - 1) {
+
+  // Bepaal of dit de laatste tab is voor dit type controle
+  const isLaatsteTab =
+    (type === 'heterdaad' && currentTab === 4) ||
+    (type === 'piket' && currentTab === 4) ||
+    (!type || (type !== 'heterdaad' && type !== 'piket') && currentTab === 4);
+
+  if (isLaatsteTab) {
     nextBtn.style.display = 'none';
   } else {
     nextBtn.style.display = 'block';
     nextBtn.className = 'btn-next';
-    nextBtn.textContent = currentTab === totalTabs - 2 ? 'Samenvatting ›' : 'Volgende ›';
+    nextBtn.textContent = currentTab === 3 ? 'Samenvatting ›' : 'Volgende ›';
   }
   const pct = ((currentTab + 1) / totalTabs) * 100;
   document.getElementById('progressBar').style.width = pct + '%';
