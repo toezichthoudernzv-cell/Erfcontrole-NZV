@@ -1633,6 +1633,7 @@ function wisselTypeControle(type) {
     }, 100);
   } else if (type === 'piket') {
     bedrijfstypeWrap.style.display = 'none';
+    bedrijfstypeWrap.style.visibility = 'hidden';
     document.getElementById('bedrijfstype').value = '';
     document.getElementById('bedrijfstypeInfo').style.display = 'none';
     window._actiefBevItems = null;
@@ -1644,7 +1645,7 @@ function wisselTypeControle(type) {
     const tm = document.getElementById('piket_tijdstip_melding');
     if (dm && !dm.value) dm.value = now.toISOString().split('T')[0];
     if (tm && !tm.value) tm.value = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    // Forceer sec7 zichtbaar
+    // Direct naar piket tab navigeren
     document.querySelectorAll('.section').forEach(s => {
       s.classList.remove('active');
       s.style.display = 'none';
@@ -1656,6 +1657,7 @@ function wisselTypeControle(type) {
     }
     currentTab = 7;
     updateNav();
+    window.scrollTo(0, 0);
   } else {
     bedrijfstypeWrap.style.display = 'block';
   }
