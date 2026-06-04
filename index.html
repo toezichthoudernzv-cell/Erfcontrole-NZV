@@ -1940,6 +1940,11 @@ function goTab(n) {
   if (s6) { s6.classList.toggle('active', n === 6); }
   if (s7) { s7.classList.toggle('active', n === 7); }
 
+  // Bedrijfstype verbergen bij piket/heterdaad
+  const huidigType = document.getElementById('typeControle')?.value;
+  const wrap = document.getElementById('bedrijfstypeWrap');
+  if (wrap) wrap.style.display = (huidigType === 'piket' || huidigType === 'heterdaad') ? 'none' : '';
+
   // Nav tabs
   document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', i === n));
   currentTab = n;
@@ -2618,7 +2623,8 @@ function resetFormulier(metBevestiging) {
   const info = document.getElementById('bedrijfstypeInfo');
   if (info) info.style.display = 'none';
   const wrap = document.getElementById('bedrijfstypeWrap');
-  if (wrap) wrap.style.display = 'block';
+  const huidigType = document.getElementById('typeControle')?.value;
+  if (wrap) wrap.style.display = (huidigType === 'piket' || huidigType === 'heterdaad') ? 'none' : 'block';
 
   // Heterdaad velden wissen
   perceelLat = null; perceelLon = null;
