@@ -753,7 +753,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
     </div>
     <div class="field">
       <label>Type controle <span class="req">*</span></label>
-      <select id="typeControle" onchange="wisselTypeControle(this.value)">
+      <select id="typeControle" onchange="wisselTypeControle(this.value); if(this.value==='piket'||this.value==='heterdaad'){document.getElementById('bedrijfstypeWrap').style.cssText='display:none!important';}else{document.getElementById('bedrijfstypeWrap').style.cssText='';}">
         <option value="">— Selecteer —</option>
         <option value="regulier">Reguliere controle</option>
         <option value="hercontrole">Hercontrole</option>
