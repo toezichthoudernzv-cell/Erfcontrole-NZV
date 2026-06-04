@@ -160,7 +160,7 @@
   .nav-tab.done .tab-check { background: var(--groen); color: white; }
 
   /* SECTIONS */
-  .section { display: none; padding: 16px; }
+  .section { display: none; padding: 16px; background: var(--bg); min-height: 200px; }
   .section.active { display: block; }
 
   /* CARDS */
@@ -395,11 +395,43 @@
     position: fixed;
     bottom: 0; left: 0; right: 0;
     background: var(--wit);
-    border-top: 1px solid var(--rand);
-    padding: 10px 16px;
+    border-top: 3px solid var(--lichtblauw);
+    padding: 14px 16px;
     display: flex;
     gap: 10px;
-    z-index: 100;
+    z-index: 9000;
+    box-shadow: 0 -4px 16px rgba(0,63,114,0.2);
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  /* Inline nav knoppen onderaan elke sectie */
+  .sectie-nav {
+    display: flex;
+    gap: 10px;
+    padding: 16px 0 8px 0;
+    margin-top: 8px;
+  }
+  .sectie-nav-next {
+    flex: 1;
+    padding: 16px;
+    background: var(--lichtblauw);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,63,114,0.3);
+  }
+  .sectie-nav-prev {
+    padding: 16px 20px;
+    background: none;
+    border: 2px solid var(--lichtblauw);
+    color: var(--lichtblauw);
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
   }
   .btn-prev {
     padding: 12px 16px;
@@ -486,7 +518,7 @@
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  .pb { padding-bottom: 80px; }
+  .pb { padding-bottom: 100px; }
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 </style>
 </head>
@@ -647,6 +679,7 @@
       <div id="bedrijfstypeInfo" style="display:none;margin-top:6px;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;"></div>
     </div>
   </div>
+  <div class="sectie-nav"><button class="sectie-nav-next" onclick="nextTab()">Volgende ›</button></div>
 </div>
 
 <!-- SECTIE 1: BEVINDINGEN -->
@@ -748,6 +781,7 @@
       </div>
     </div>
   </div>
+  <div class="sectie-nav"><button class="sectie-nav-prev" onclick="prevTab()">‹ Vorige</button><button class="sectie-nav-next" onclick="nextTab()">Volgende ›</button></div>
 </div>
 
 <!-- SECTIE 3: FOTO'S -->
@@ -772,6 +806,7 @@
     <div class="card-title">🏷 Fotolabels</div>
     <div id="fotoLabels"></div>
   </div>
+  <div class="sectie-nav"><button class="sectie-nav-prev" onclick="prevTab()">‹ Vorige</button><button class="sectie-nav-next" onclick="nextTab()">Volgende ›</button></div>
 </div>
 
 <!-- SECTIE 4: VERZENDEN -->
@@ -824,7 +859,7 @@
 </div>
 
 <!-- SECTIE 6: HETERDAAD GBM -->
-<div class="section pb" id="sec6" style="display:none;">
+<div class="section pb" id="sec6">
   <div class="card" style="border-color:var(--rood);border-width:2px;">
     <div class="card-title" style="color:var(--rood);">🚨 Heterdaad controle gewasbeschermingsmiddelen</div>
     <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van boven naar beneden. De dopbeoordeling en machine-herkenning staan bewust onderaan — AI gebruikt alle eerder ingevulde gegevens voor een beter oordeel.</p>
@@ -862,6 +897,39 @@
         <input type="text" id="het_kvk" placeholder="KvK nummer" oninput="document.getElementById('kvk').value=this.value">
       </div>
     </div>
+  </div>
+
+  <!-- Perceel locatie -->
+  <div class="card">
+    <div class="card-title">📍 Locatie perceel</div>
+    <p style="font-size:12px;color:var(--grijs);margin-bottom:10px;">Leg de locatie vast van het perceel waar gespoten wordt. Coördinaten worden automatisch omgezet naar RD (GeoWeb) én WGS84 (Google).</p>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button onclick="getGPSPerceel()" id="perceelGpsBtn" style="flex:1;padding:11px;background:var(--lichtblauw);color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">📡 GPS vastleggen</button>
+    </div>
+    <div id="perceelGpsStatus" style="font-size:11px;color:var(--grijs);margin-bottom:8px;min-height:14px;"></div>
+    <div class="two-col">
+      <div class="field">
+        <label>RD X (GeoWeb)</label>
+        <input type="text" id="perceel_rd_x" placeholder="Bijv. 208833.60">
+      </div>
+      <div class="field">
+        <label>RD Y (GeoWeb)</label>
+        <input type="text" id="perceel_rd_y" placeholder="Bijv. 574176.94">
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="field">
+        <label>Breedtegraad (Google)</label>
+        <input type="text" id="perceel_wgs_lat" placeholder="Bijv. 53.150702">
+      </div>
+      <div class="field">
+        <label>Lengtegraad (Google)</label>
+        <input type="text" id="perceel_wgs_lon" placeholder="Bijv. 6.191920">
+      </div>
+    </div>
+    <a id="perceelGeowebLink" href="#" target="_blank" style="display:none;margin-top:8px;padding:8px 12px;background:#E3F2FD;color:var(--lichtblauw);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;">
+      🗺 Bekijk in GeoWeb →
+    </a>
   </div>
 
   <!-- 1. Spuitlicentie -->
@@ -1026,7 +1094,7 @@
 
 
 <!-- SECTIE 7: PIKET -->
-<div class="section pb" id="sec7" style="display:none;">
+<div class="section pb" id="sec7" style="background:#fff;">
   <div class="card" style="border-color:#E65100;border-width:2px;">
     <div class="card-title" style="color:#E65100;">🔔 Piketmelding</div>
     <p style="font-size:12px;color:var(--grijs);margin-bottom:8px;">Vul alle gegevens in van de piketmelding.</p>
@@ -1522,11 +1590,11 @@ function goTab(n) {
   // Toon actieve sectie
   const actief = document.getElementById('sec' + n);
   if (actief) actief.classList.add('active');
-  // Speciale secties altijd verbergen tenzij actief
-  [6,7].forEach(i => {
-    const s = document.getElementById('sec' + i);
-    if (s && i !== n) s.classList.remove('active');
-  });
+  // sec6 en sec7 alleen tonen als expliciet genavigeerd
+  const s6 = document.getElementById('sec6');
+  const s7 = document.getElementById('sec7');
+  if (s6) { s6.classList.toggle('active', n === 6); }
+  if (s7) { s7.classList.toggle('active', n === 7); }
 
   // Nav tabs
   document.querySelectorAll('.nav-tab').forEach((t, i) => t.classList.toggle('active', i === n));
@@ -2209,9 +2277,11 @@ function resetFormulier(metBevestiging) {
   if (wrap) wrap.style.display = 'block';
 
   // Heterdaad velden wissen
+  perceelLat = null; perceelLon = null;
   ['lic_naam','lic_pas','lic_geldig','lic_type','skl_geldig','gbm1','gbm2','gbm3',
    'spuitdruk','veldspuit','dop_naam','kantdop_naam','teeltvrij_afstand',
-   'het_bedrijfsnaam','het_contactpersoon','het_adres','het_plaats','het_tel','het_kvk'].forEach(id => {
+   'het_bedrijfsnaam','het_contactpersoon','het_adres','het_plaats','het_tel','het_kvk',
+   'perceel_rd_x','perceel_rd_y','perceel_wgs_lat','perceel_wgs_lon'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -2891,6 +2961,92 @@ function downloadPiketPDF() {
   const filename = 'piketrapport_' + datum + '.pdf';
   doc.save(filename);
   showToast('✅ Piketrapport gedownload');
+}
+
+
+// ===== WGS84 NAAR RD CONVERSIE =====
+function wgs84ToRD(lat, lon) {
+  // Gebaseerd op de officiële RDNAPTRANS formules
+  const dLat = 0.36 * (lat - 52.15517440);
+  const dLon = 0.36 * (lon - 5.38720621);
+
+  const X = 155000.00
+    + 190094.945 * dLon
+    - 11832.228 * dLon * dLat
+    - 114.221 * dLon * dLat * dLat
+    - 32.391 * dLon * dLon * dLon
+    - 0.705 * dLat
+    - 2.340 * dLon * dLon * dLat
+    + 0.608 * dLon * dLat * dLat * dLat
+    - 0.008 * dLon * dLon * dLon * dLat
+    + 0.148 * dLon * dLon * dLon * dLon * dLat;
+
+  const Y = 463000.00
+    + 309056.544 * dLat
+    + 73839.316 * dLon * dLon
+    + 59443.787 * dLat * dLat
+    - 6287.920 * dLat * dLon * dLon
+    + 2516.853 * dLat * dLat * dLat
+    + 923.199 * dLon * dLon * dLon * dLon
+    - 220.955 * dLat * dLat * dLon * dLon
+    - 13.655 * dLon * dLon * dLat * dLat * dLat
+    - 10.858 * dLat * dLat * dLon * dLon * dLon
+    - 8.063 * dLon * dLon * dLon * dLon * dLat;
+
+  return {
+    x: Math.round(X * 100) / 100,
+    y: Math.round(Y * 100) / 100
+  };
+}
+
+// GPS voor perceel in heterdaad tab
+let perceelLat = null, perceelLon = null;
+
+function getGPSPerceel() {
+  const btn = document.getElementById('perceelGpsBtn');
+  const status = document.getElementById('perceelGpsStatus');
+
+  if (btn.dataset.bezig === 'true') {
+    btn.dataset.bezig = 'false';
+    btn.textContent = '📡';
+    status.textContent = 'GPS geannuleerd.';
+    return;
+  }
+
+  btn.dataset.bezig = 'true';
+  btn.textContent = '✕';
+  status.textContent = '📡 GPS bepalen...';
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    btn.dataset.bezig = 'false';
+    btn.textContent = '📡';
+    perceelLat = pos.coords.latitude;
+    perceelLon = pos.coords.longitude;
+    const acc = Math.round(pos.coords.accuracy);
+    const rd = wgs84ToRD(perceelLat, perceelLon);
+
+    document.getElementById('perceel_rd_x').value = rd.x.toFixed(2);
+    document.getElementById('perceel_rd_y').value = rd.y.toFixed(2);
+    document.getElementById('perceel_wgs_lat').value = perceelLat.toFixed(6);
+    document.getElementById('perceel_wgs_lon').value = perceelLon.toFixed(6);
+
+    status.textContent = '✅ Locatie vastgelegd (±' + acc + 'm)';
+    status.style.color = 'var(--groen)';
+
+    // Maak GeoWeb link
+    const buffer = 150;
+    const geowebLink = document.getElementById('perceelGeowebLink');
+    if (geowebLink) {
+      const extent = (rd.x - buffer) + ',' + (rd.y - buffer) + ',' + (rd.x + buffer) + ',' + (rd.y + buffer);
+      geowebLink.href = 'https://geo.noorderzijlvest.nl/Geoweb/index.html?viewer=Waterschapskaart.Waterschapskaart&extent=' + extent;
+      geowebLink.style.display = 'inline-block';
+    }
+  }, err => {
+    btn.dataset.bezig = 'false';
+    btn.textContent = '📡';
+    status.textContent = '⚠️ GPS niet beschikbaar — vul coördinaten handmatig in';
+    status.style.color = 'var(--oranje)';
+  }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 });
 }
 
 // ===== NETWERK STATUS =====
