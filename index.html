@@ -1155,7 +1155,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
     <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
       <button onclick="document.getElementById('fotoDop').click()" style="flex:1;min-width:160px;padding:11px;background:var(--oranje);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">📷 Foto dopnummer → AI beoordelen</button>
       <input type="file" id="fotoDop" accept="image/*" capture="environment" style="display:none;" onchange="beoordeelDop(event)">
-      <button onclick="beoordeelDopZonderFoto()" style="flex:1;min-width:160px;padding:11px;background:#5C6BC0;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">🤖 AI controleer op basis van gegevens</button>
+      <button onclick="controleerDopOffline()" style="flex:1;min-width:160px;padding:11px;background:#2E7D32;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">📋 Controleer via DRD-lijst</button>
     </div>
     <div id="dopAIStatus" style="font-size:12px;margin-bottom:8px;min-height:16px;"></div>
     <div id="dopAIOordeel" style="display:none;padding:12px;border-radius:8px;font-size:12px;margin-bottom:8px;line-height:1.6;"></div>
@@ -1175,6 +1175,250 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
 // ═══════════════════════════════════
 //  STATE
 // ═══════════════════════════════════
+
+
+// DRD-LIJST versie 10 november 2025 (bron: iplo.nl / TCT)
+// Tabel 1A = geldig, Tabel 1B = opgebruiktermijn
+const DRD_LIJST = [
+
+  // === AGROTOP ===
+  { naam: 'Agrotop AirMix 110-015', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop AirMix 110-02', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop AirMix 110-025', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop AirMix 110-03', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Opgebruik t/m 31-12-2027' },
+  { naam: 'Agrotop TurboDrop HD 110-015', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HD 110-02', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HD 110-025', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HD 110-03', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HD 110-04', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HD 110-05', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HiSpeed 110-02', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HiSpeed 110-025', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HiSpeed 110-03', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Geen 90% reductie' },
+  { naam: 'Agrotop TurboDrop HiSpeed 110-04', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop HiSpeed 110-05', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Geen 90% reductie' },
+  { naam: 'Agrotop TurboDrop TD-XL 110-015', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop TD-XL 110-02', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop TD-XL 110-025', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop TD-XL 110-03', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop TD-XL 110-04', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop TD-XL-D 110-02', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Agrotop TurboDrop XL 110-015', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+  { naam: 'Agrotop TurboDrop XL 110-02', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+  { naam: 'Agrotop TurboDrop XL 110-025', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+  { naam: 'Agrotop TurboDrop XL 110-03', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+  { naam: 'Agrotop TurboDrop XL 110-04', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+
+  // === ALBUZ ===
+  { naam: 'Albuz AVI 110-015', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz AVI 110-02', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz AVI 110-025', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz AVI 110-03', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz CVI 110-015', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz CVI 110-02', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz CVI-TWIN 110-02', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz CVI-TWIN 110-025', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 8002', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 8003', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 110-02', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 110-025', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 110-03', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 110-04', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Albuz TVI 110-05', drd: 90, max_druk: 3, tabel: '1A' },
+
+  // === GREENLEAF ===
+  { naam: 'Greenleaf TurboDrop XL 110-015', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Greenleaf TurboDrop XL 110-02', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Greenleaf TurboDrop XL 110-025', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Greenleaf TurboDrop XL 110-03', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Greenleaf TurboDrop XL 110-04', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'Greenleaf TurboDrop XL 110-05', drd: 90, max_druk: 3, tabel: '1A' },
+
+  // === LECHLER ===
+  { naam: 'Lechler AD 90-015', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler AD 90-02', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler AD 90-025', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler AD 90-03', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler ID 90-015', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler ID 90-02', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler ID 90-025', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler ID 90-03', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'Lechler ID3-120-015', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Nieuwe ID3-serie' },
+  { naam: 'Lechler ID3-120-02', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Nieuwe ID3-serie' },
+  { naam: 'Lechler ID3-120-025', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Nieuwe ID3-serie' },
+  { naam: 'Lechler ID3-120-03', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Nieuwe ID3-serie' },
+  { naam: 'Lechler ID3-120-04', drd: 75, max_druk: 3, tabel: '1A', opmerking: 'Nieuwe ID3-serie' },
+  { naam: 'Lechler ID 120-015', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Oude serie, opgebruiktermijn' },
+  { naam: 'Lechler ID 120-02', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Oude serie, opgebruiktermijn' },
+  { naam: 'Lechler ID 120-025', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Oude serie, opgebruiktermijn' },
+  { naam: 'Lechler ID 120-03', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Oude serie, opgebruiktermijn' },
+  { naam: 'Lechler IDKT 120-03', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Niet 75% bij 2 bar' },
+  { naam: 'Lechler IDKT 120-04', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Niet 75% bij 2 bar' },
+  { naam: 'Lechler IDKT 120-05', drd: 75, max_druk: 3, tabel: '1B', opmerking: 'Niet 75% bij 2 bar' },
+
+  // === TEEJET ===
+  { naam: 'TeeJet DG 80-015', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 80-02', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 80-025', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 80-03', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 80-04', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 80-05', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 110-015', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 110-02', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 110-025', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 110-03', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 110-04', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet DG 110-05', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet AIXR 110-015', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet AIXR 110-02', drd: 75, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet AIXR 110-025', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet AIXR 110-03', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet AIXR 110-04', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet AIXR 110-05', drd: 50, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI 110-015', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI 110-02', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI 110-025', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI 110-03', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI 110-04', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI 110-05', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet TTI60 11002VP', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruik t/m 31-12-2024' },
+  { naam: 'TeeJet TTJ60 11006VP', drd: 90, max_druk: 3, tabel: '1B', opmerking: 'Opgebruik t/m 31-12-2024' },
+  { naam: 'TeeJet Turbo TeeJet Induction TTI', drd: 90, max_druk: 3, tabel: '1A' },
+  { naam: 'TeeJet XR 80-015', drd: 50, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+  { naam: 'TeeJet XR 110-015', drd: 50, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+  { naam: 'TeeJet TP 80-015', drd: 50, max_druk: 3, tabel: '1B', opmerking: 'Opgebruiktermijn' },
+
+  // === KANTDOPPEN (Tabel 3) ===
+  { naam: 'TeeJet DG 8001E', drd: 75, max_druk: 3, tabel: '3', kantdop: true },
+  { naam: 'TeeJet DG 110-01E', drd: 75, max_druk: 3, tabel: '3', kantdop: true },
+  { naam: 'TeeJet DG 110-015E', drd: 75, max_druk: 3, tabel: '3', kantdop: true },
+  { naam: 'Lechler LU 120-015', drd: 50, max_druk: 3, tabel: '3', kantdop: true },
+  { naam: 'Lechler LU 120-02', drd: 50, max_druk: 3, tabel: '3', kantdop: true },
+  { naam: 'Albuz AVI 110-01', drd: 50, max_druk: 3, tabel: '3', kantdop: true },
+  { naam: 'Albuz AVI 110-015', drd: 75, max_druk: 3, tabel: '3', kantdop: true },
+
+  // === JOHN DEERE ===
+  { naam: 'John Deere PSAULDCQ2004', drd: 90, max_druk: 1.5, tabel: '1A', opmerking: 'Max 1.5 bar, niet opgenomen in standaard 2-bar criterium' },
+
+];
+
+// ===== DRD ZOEKFUNCTIE =====
+function zoekInDRD(dopnaam) {
+  if (!dopnaam) return null;
+  const zoek = dopnaam.toLowerCase().trim();
+  
+  // Exacte match eerst
+  let gevonden = DRD_LIJST.find(d => d.naam.toLowerCase() === zoek);
+  if (gevonden) return gevonden;
+  
+  // Gedeeltelijke match - zoek op alle woorden
+  const woorden = zoek.split(/\s+/).filter(w => w.length > 2);
+  let beste = null;
+  let besteScore = 0;
+  
+  DRD_LIJST.forEach(d => {
+    const naam = d.naam.toLowerCase();
+    let score = 0;
+    woorden.forEach(w => { if (naam.includes(w)) score++; });
+    if (score > besteScore) { besteScore = score; beste = d; }
+  });
+  
+  return besteScore >= Math.ceil(woorden.length * 0.6) ? beste : null;
+}
+
+function controleerDopOffline() {
+  const dop = document.getElementById('dop_naam')?.value?.trim();
+  const kantdop = document.getElementById('kantdop_naam')?.value?.trim();
+  const druk = parseFloat(document.getElementById('spuitdruk')?.value) || null;
+  const statusEl = document.getElementById('dopAIStatus');
+  const oordeelEl = document.getElementById('dopAIOordeel');
+
+  if (!dop) { showToast('⚠️ Vul eerst de spuitdopnaam in'); return; }
+
+  statusEl.textContent = '🔍 Zoeken in DRD-lijst...';
+  statusEl.style.color = 'var(--grijs)';
+  statusEl.style.fontWeight = 'normal';
+  oordeelEl.style.display = 'none';
+
+  const gevondenDop = zoekInDRD(dop);
+  const gevondenKant = kantdop ? zoekInDRD(kantdop) : null;
+
+  let html = '';
+  let oordeel = 'goed';
+  let aanmerkingen = [];
+
+  if (!gevondenDop) {
+    oordeel = 'niet_gevonden';
+    html += '<div style="background:#FFEBEE;border:2px solid #D0021B;border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;font-weight:700;">❌ Dop NIET gevonden in DRD-lijst</div>';
+    html += '<div style="font-size:12px;color:var(--tekst);line-height:1.7;">';
+    html += '<b>Ingevoerd:</b> ' + dop + '<br>';
+    html += '⚠️ Deze dop staat niet in de DRD-lijst (versie nov. 2025).<br>';
+    html += 'Mogelijke oorzaken:<br>';
+    html += '• Typfout in de naam<br>';
+    html += '• Dop heeft geen DRD-certificering<br>';
+    html += '• Dop heeft verlopen certificering zonder opgebruiktermijn<br>';
+    html += '<b style="color:#D0021B;">Gebruik van deze dop als driftreducerende dop is NIET toegestaan tenzij je kunt aantonen dat hij gecertificeerd is.</b>';
+    html += '</div>';
+    statusEl.textContent = '❌ Dop niet gevonden in DRD-lijst';
+    statusEl.style.color = 'var(--rood)';
+    statusEl.style.fontWeight = '700';
+  } else {
+    // Dop gevonden
+    const drukOk = druk === null || druk <= gevondenDop.max_druk;
+    const isOpgebruik = gevondenDop.tabel === '1B';
+    
+    if (!drukOk) { oordeel = 'niet_goed'; aanmerkingen.push('Spuitdruk (' + druk + ' bar) overschrijdt maximum (' + gevondenDop.max_druk + ' bar)'); }
+    if (isOpgebruik) { if (oordeel === 'goed') oordeel = 'twijfel'; aanmerkingen.push('Dop heeft opgebruiktermijn (tabel 1B) — controleer vervaldatum'); }
+    if (gevondenDop.opmerking) aanmerkingen.push(gevondenDop.opmerking);
+
+    const kleur = oordeel === 'goed' ? '#E8F5E9' : oordeel === 'twijfel' ? '#FFF3E0' : '#FFEBEE';
+    const rand = oordeel === 'goed' ? '#4CAF50' : oordeel === 'twijfel' ? '#E65100' : '#D0021B';
+    const icoon = oordeel === 'goed' ? '✅' : oordeel === 'twijfel' ? '⚠️' : '🚫';
+    const tekst = oordeel === 'goed' ? 'MAG WORDEN GEBRUIKT' : oordeel === 'twijfel' ? 'GEBRUIK ONDER VOORBEHOUD — controleer vervaldatum' : 'MAG NIET WORDEN GEBRUIKT';
+
+    dopOordeel = { oordeel, gebruik_advies: tekst, driftreductie: gevondenDop.drd + '%', drd_gecertificeerd: true, bron: 'DRD-lijst' };
+
+    html += '<div style="background:' + rand + ';color:white;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:14px;font-weight:800;">' + icoon + ' ' + tekst + '</div>';
+    html += '<div style="font-size:12px;line-height:1.8;">';
+    html += '<b>Gevonden dop:</b> ' + gevondenDop.naam + '<br>';
+    html += 'DRD-klasse: <b style="font-size:14px;">' + gevondenDop.drd + '% driftreductie</b><br>';
+    html += 'Max. spuitdruk: <b>' + gevondenDop.max_druk + ' bar</b>';
+    if (druk !== null) html += ' (ingevuld: ' + druk + ' bar — ' + (drukOk ? '<span style="color:var(--groen)">✅ OK</span>' : '<span style="color:var(--rood)">❌ TE HOOG</span>') + ')';
+    html += '<br>';
+    html += 'Tabel: <b>' + gevondenDop.tabel + '</b> (' + (isOpgebruik ? '⚠️ opgebruiktermijn' : '✅ geldig') + ')<br>';
+    if (aanmerkingen.length > 0) {
+      html += '<br><b>Aandachtspunten:</b><br>';
+      aanmerkingen.forEach(a => { html += '• ' + a + '<br>'; });
+    }
+    html += '</div>';
+
+    // Kantdop
+    if (kantdop) {
+      html += '<hr style="margin:10px 0;border-color:var(--lichtgrijs);">';
+      html += '<b>Kantdop:</b> ';
+      if (gevondenKant) {
+        html += gevondenKant.naam + ' — <b>' + gevondenKant.drd + '% DRD</b> (tabel ' + gevondenKant.tabel + ')<br>';
+        html += (gevondenKant.drd >= 50 ? '✅ Kantdop voldoet (minimaal DRD 50% vereist)' : '❌ Kantdop voldoet niet') + '<br>';
+      } else {
+        html += '<span style="color:var(--rood)">❌ ' + kantdop + ' niet gevonden in DRD-lijst</span><br>';
+      }
+    }
+
+    statusEl.textContent = icoon + ' DRD-klasse ' + gevondenDop.drd + '% — ' + tekst;
+    statusEl.style.color = oordeel === 'goed' ? 'var(--groen)' : oordeel === 'twijfel' ? '#E65100' : 'var(--rood)';
+    statusEl.style.fontWeight = '700';
+  }
+
+  html += '<div style="margin-top:10px;font-size:10px;color:#E65100;font-weight:700;">⚠️ ONDER VOORBEHOUD — controleer altijd via de actuele DRD-lijst op iplo.nl (versie nov. 2025)</div>';
+  html += '<div style="font-size:10px;color:var(--grijs);margin-top:4px;">Zoek de actuele lijst op: iplo.nl → DRD-lijst</div>';
+
+  oordeelEl.style.display = 'block';
+  oordeelEl.style.borderRadius = '10px';
+  oordeelEl.style.padding = '12px';
+  oordeelEl.style.border = oordeel === 'goed' ? '2px solid #4CAF50' : oordeel === 'twijfel' ? '2px solid #E65100' : '2px solid #D0021B';
+  oordeelEl.style.background = oordeel === 'goed' ? '#E8F5E9' : oordeel === 'twijfel' ? '#FFF3E0' : oordeel === 'niet_gevonden' ? '#FFEBEE' : '#FFEBEE';
+  oordeelEl.innerHTML = html;
+}
 
 // ===== STATE =====
 let currentTab = 0;
