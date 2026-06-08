@@ -1183,6 +1183,7 @@ let gpsLat = null, gpsLon = null, gpsAcc = null;
 let fotos = [];
 let bevindingen = {};
 let perceelLat = null, perceelLon = null;
+let dopOordeel = null; // { oordeel, gebruik_advies, driftreductie, drd_gecertificeerd }
 
 const BEVITEMS_VEEHOUDERIJ = [
   { id: 'erfwater',    label: 'Hemelwater erf afspoeling (schoon)', opties: ['Riool','Bodem','Mestkelder','Opp. water','N.v.t.'], optieKleuren: ['ok','ok','ok','ok','nvt'] },
@@ -1760,6 +1761,95 @@ async function downloadPDF() {
   showToast('📄 PDF gedownload!');
 }
 
+// ===== AI DOPCHECK VIA FOTO =====
+async function beoordeelDop(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('dopAIStatus');
+  const oordeelEl = document.getElementById('dopAIOordeel');
+  statusEl.textContent = '⏳ AI leest dopnummer en beoordeelt...';
+  statusEl.style.color = 'var(--grijs)';
+  oordeelEl.style.display = 'none';
+
+  const ctx = {
+    gbm: [document.getElementById('gbm1')?.value, document.getElementById('gbm2')?.value, document.getElementById('gbm3')?.value].filter(Boolean).join(', '),
+    druk: document.getElementById('spuitdruk')?.value,
+    drift: document.getElementById('drift_tech')?.value,
+    gewas: document.getElementById('gewas')?.value,
+    hoogte: document.getElementById('spuitboomhoogte')?.value,
+    teeltvrij: document.getElementById('teeltvrij_afstand')?.value,
+    machine: document.getElementById('veldspuit')?.value,
+  };
+
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result.split(',')[1];
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
+            { type: 'text', text: 'Dit is een foto van een spuitdop. Lees LETTERLIJK de tekst/code op de dop. Context: GBM=' + (ctx.gbm||'?') + ', druk=' + (ctx.druk||'?') + 'bar, drift=' + (ctx.drift||'?') + ', gewas=' + (ctx.gewas||'?') + ', hoogte=' + (ctx.hoogte||'?') + ', machine=' + (ctx.machine||'?') + '. Geef JSON (alleen JSON): {"foto_leesbaar":true,"foto_opmerking":"","dop_naam":"","dop_nummer":"","gelezen_tekst":"","drd_gecertificeerd":true,"driftreductie":"","druk_correct":true,"druk_bereik":"","geschikt_voor_middel":true,"oordeel":"goed","gebruik_advies":"","toelichting":"","aandachtspunten":[]}. oordeel is ALTIJD: goed, twijfel, of niet_goed.' }
+          ]}]
+        })
+      });
+      const data = await response.json();
+      const tekst = data.content[0].text.trim();
+      const json = JSON.parse(tekst.replace(/```json|```/g, '').trim());
+
+      if (json.foto_leesbaar === false) {
+        statusEl.textContent = '📷 Foto niet leesbaar — maak een nieuwe foto of vul handmatig in';
+        statusEl.style.color = 'var(--rood)';
+        oordeelEl.style.display = 'block';
+        oordeelEl.style.background = '#FFEBEE';
+        oordeelEl.style.border = '1.5px solid var(--rood)';
+        oordeelEl.innerHTML = '<b>❌ Foto niet leesbaar</b><br>' + (json.foto_opmerking || '') + '<br><br><i>Tip: foto recht boven dop, goede belichting.</i>';
+        return;
+      }
+
+      dopOordeel = { oordeel: json.oordeel, gebruik_advies: json.gebruik_advies, driftreductie: json.driftreductie, drd_gecertificeerd: json.drd_gecertificeerd, bron: 'foto' };
+
+      if (json.dop_naam) document.getElementById('dop_naam').value = (json.dop_naam + ' ' + (json.dop_nummer||'')).trim();
+
+      const isGoed = json.oordeel === 'goed';
+      const isTwijfel = json.oordeel === 'twijfel';
+      const adviesBg = isGoed ? '#2E7D32' : isTwijfel ? '#E65100' : '#B71C1C';
+      const adviesIcoon = isGoed ? '✅' : isTwijfel ? '⚠️' : '🚫';
+
+      oordeelEl.style.display = 'block';
+      oordeelEl.style.background = isGoed ? '#E8F5E9' : isTwijfel ? '#FFF3E0' : '#FFEBEE';
+      oordeelEl.style.border = '2px solid ' + (isGoed ? 'var(--groen)' : isTwijfel ? '#E65100' : 'var(--rood)');
+      oordeelEl.style.borderRadius = '10px';
+      oordeelEl.style.padding = '12px';
+      statusEl.textContent = isGoed ? '✅ Dop mag worden gebruikt' : isTwijfel ? '⚠️ TWIJFEL — controleer handmatig!' : '🚫 Dop mag NIET worden gebruikt';
+      statusEl.style.color = isGoed ? 'var(--groen)' : isTwijfel ? '#E65100' : 'var(--rood)';
+      statusEl.style.fontWeight = '700';
+
+      const aandachtspunten = (json.aandachtspunten||[]).map(a => '<br>• ' + a).join('');
+      oordeelEl.innerHTML = '<div style="background:' + adviesBg + ';color:white;border-radius:8px;padding:10px;margin-bottom:8px;font-size:14px;font-weight:800;">' + adviesIcoon + ' ' + (json.gebruik_advies||'') + '</div>'
+        + '<div style="font-size:12px;line-height:1.7;">'
+        + '<b>Dop:</b> ' + (json.dop_naam||'—') + ' ' + (json.dop_nummer||'') + '<br>'
+        + (json.gelezen_tekst ? 'Gelezen tekst: <b>' + json.gelezen_tekst + '</b><br>' : '')
+        + 'DRD-gecertificeerd: <b>' + (json.drd_gecertificeerd ? 'Ja ✅' : 'Nee ❌') + '</b><br>'
+        + 'Driftreductie: <b>' + (json.driftreductie||'—') + '</b><br>'
+        + 'Druk correct (' + (json.druk_bereik||'—') + '): <b>' + (json.druk_correct === true ? 'Ja ✅' : 'Nee ❌') + '</b><br>'
+        + (json.toelichting ? '<br><i>' + json.toelichting + '</i>' : '')
+        + (aandachtspunten ? '<br><b>Aandachtspunten:</b>' + aandachtspunten : '')
+        + '<br><span style="font-size:10px;color:var(--grijs);">Controleer altijd zelf via de actuele DRD/DRT-lijst.</span>'
+        + '</div>';
+    } catch(err) {
+      statusEl.textContent = '⚠️ Kon dop niet beoordelen — vul handmatig in';
+      statusEl.style.color = 'var(--oranje)';
+    }
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
 // ===== AI DOPCHECK ZONDER FOTO =====
 async function beoordeelDopZonderFoto() {
   const statusEl = document.getElementById('dopAIStatus');
@@ -1837,6 +1927,7 @@ Geef je antwoord ALLEEN als JSON (geen markdown, geen uitleg erbuiten):
     const tekst = data.content[0].text.trim();
     const json = JSON.parse(tekst.replace(/```json|```/g, '').trim());
 
+    dopOordeel = { oordeel: json.oordeel, gebruik_advies: json.gebruik_advies, driftreductie: json.driftreductie, drd_gecertificeerd: json.drd_gecertificeerd, bron: 'gegevens' };
     const isGoed = json.oordeel === 'goed';
     const isTwijfel = json.oordeel === 'twijfel';
 
@@ -1882,6 +1973,20 @@ Geef je antwoord ALLEEN als JSON (geen markdown, geen uitleg erbuiten):
       + (ontbrekend ? '<br><b style="color:var(--oranje)">Ontbrekende gegevens:</b>' + ontbrekend : '')
       + '<br><span style="font-size:10px;color:var(--grijs);">⚠️ AI-oordeel op basis van ingevoerde gegevens — controleer altijd zelf via de actuele DRD/DRT-lijst.</span>'
       + '</div>';
+
+    // AI oordeel in samenvatting
+    if (dopOordeel) {
+      const oKleur = dopOordeel.oordeel === 'goed' ? '#E8F5E9' : dopOordeel.oordeel === 'twijfel' ? '#FFF3E0' : '#FFEBEE';
+      const oBorder = dopOordeel.oordeel === 'goed' ? '#4CAF50' : dopOordeel.oordeel === 'twijfel' ? '#E65100' : '#D0021B';
+      const oIcoon = dopOordeel.oordeel === 'goed' ? '✅' : dopOordeel.oordeel === 'twijfel' ? '⚠️' : '🚫';
+      html += '<div class="samenvatting-block" style="background:' + oKleur + ';border:2px solid ' + oBorder + ';">'
+        + '<div class="sam-titel">🤖 AI Dopbeoordeling (' + (dopOordeel.bron === 'foto' ? 'via foto' : 'via gegevens') + ')</div>'
+        + '<div style="font-size:13px;font-weight:700;margin-bottom:6px;">' + oIcoon + ' ' + (dopOordeel.gebruik_advies || '—') + '</div>'
+        + '<div class="sam-row"><span class="sam-key">DRD-gecertificeerd</span><span class="sam-val">' + (dopOordeel.drd_gecertificeerd ? 'Ja ✅' : 'Nee / Onbekend ❌') + '</span></div>'
+        + '<div class="sam-row"><span class="sam-key">Driftreductie</span><span class="sam-val">' + (dopOordeel.driftreductie || '—') + '</span></div>'
+        + '<div style="margin-top:8px;font-size:10px;color:#E65100;font-weight:700;">⚠️ ONDER VOORBEHOUD — nog te verifiëren op kantoor via actuele DRD/DRT-lijst.</div>'
+        + '</div>';
+    }
 
   } catch(err) {
     statusEl.textContent = '⚠️ AI-controle mislukt — vul handmatig in of gebruik foto';
@@ -2248,6 +2353,18 @@ window.buildSamenvatting = function() {
       + '<div class="sam-row"><span class="sam-key">Spuitdop</span><span class="sam-val">' + g('dop_naam') + '</span></div>'
       + '<div class="sam-row"><span class="sam-key">Kantdop</span><span class="sam-val">' + g('kantdop_naam') + '</span></div>'
       + '</div>';
+    if (dopOordeel) {
+      const oKleur = dopOordeel.oordeel === 'goed' ? '#E8F5E9' : dopOordeel.oordeel === 'twijfel' ? '#FFF3E0' : '#FFEBEE';
+      const oBorder = dopOordeel.oordeel === 'goed' ? '#4CAF50' : dopOordeel.oordeel === 'twijfel' ? '#E65100' : '#D0021B';
+      const oIcoon = dopOordeel.oordeel === 'goed' ? '✅' : dopOordeel.oordeel === 'twijfel' ? '⚠️' : '🚫';
+      html += '<div class="samenvatting-block" style="background:' + oKleur + ';border:2px solid ' + oBorder + ';">'
+        + '<div class="sam-titel">🤖 AI Dopbeoordeling (' + (dopOordeel.bron === 'foto' ? 'via foto' : 'via gegevens') + ')</div>'
+        + '<div style="font-size:13px;font-weight:700;margin-bottom:6px;">' + oIcoon + ' ' + (dopOordeel.gebruik_advies || '—') + '</div>'
+        + '<div class="sam-row"><span class="sam-key">DRD-gecertificeerd</span><span class="sam-val">' + (dopOordeel.drd_gecertificeerd ? 'Ja ✅' : 'Nee / Onbekend ❌') + '</span></div>'
+        + '<div class="sam-row"><span class="sam-key">Driftreductie</span><span class="sam-val">' + (dopOordeel.driftreductie || '—') + '</span></div>'
+        + '<div style="margin-top:8px;font-size:10px;color:#E65100;font-weight:700;">⚠️ ONDER VOORBEHOUD — nog te verifiëren op kantoor via actuele DRD/DRT-lijst.</div>'
+        + '</div>';
+    }
   }
 
 
