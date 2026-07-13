@@ -1422,51 +1422,54 @@ function controleerDopOffline() {
 
 
 // ===== WETSARTIKELEN PER OVERTREDING =====
+// Gebaseerd op BAL (Besluit activiteiten leefomgeving 2024) en Waterschapsverordening NZV
+// Alleen oppervlaktewatercomponent — waterschap NZV is bevoegd gezag voor oppervlaktewater
 const WETSARTIKELEN = {
   'afsluiten': {
     titel: 'Afspuiten machines — lozing op oppervlaktewater',
-    tekst: 'Op grond van art. 4.831 BAL jo. art. 2.11 BAL is lozing van afvalwater afkomstig van het afspuiten van machines op oppervlaktewater niet toegestaan. Vrijkomend spoelwater dient te worden geloosd op de mestkelder of het riool (art. 4.832 BAL). Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+    tekst: 'Op grond van paragraaf 4.82 BAL (art. 4.813 e.v.) dient waswater van het reinigen van machines te worden geloosd op de mestkelder, waarna verspreiding over landbouwgrond plaatsvindt. Lozing op oppervlaktewater is niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV (vangnetvergunningplicht) is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
   },
   'vastemest': {
     titel: 'Vaste mestopslag — lozing op oppervlaktewater',
-    tekst: 'Op grond van art. 4.838 en 4.839 BAL moeten vrijkomende vloeistoffen van vaste mestopslag gelijkmatig worden verspreid over landbouwgrond. Lozing op oppervlaktewater is verboden. De opslag dient te beschikken over een aaneengesloten bodemvoorziening (art. 4.838 lid 1 BAL). Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+    tekst: 'Op grond van art. 4.838 BAL dient de opslag van vaste mest een aaneengesloten bodemvoorziening te hebben zodat vrijkomende vloeistoffen worden opgevangen. Op grond van art. 4.839 BAL moeten vrijkomende vloeistoffen gelijkmatig worden verspreid over landbouwgrond. Lozing op oppervlaktewater is verboden. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
   },
   'voer': {
     titel: 'Voeropslag (kuilvoer/bijvoedermiddelen) — lozing op oppervlaktewater',
-    tekst: 'Op grond van art. 4.843 en 4.844 BAL (par. 4.84) dienen vrijkomende vloeistoffen van kuilvoer- en voeropslag te worden geloosd op de mestkelder. Lozing op oppervlaktewater is niet toegestaan. Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+    tekst: 'Op grond van paragraaf 4.84 BAL dienen vrijkomende vloeistoffen (perssap en percolaatwater) van kuilvoer- en voeropslag te worden geloosd op de mestkelder. Lozing op oppervlaktewater is niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
   },
   'bijproducten': {
     titel: 'Bijproducten — lozing op oppervlaktewater',
-    tekst: 'Het lozen van vloeistoffen afkomstig van de opslag van bijproducten op oppervlaktewater is niet toegestaan op grond van art. 2.11 BAL (zorgplicht) en art. 3.7 Waterschapsverordening NZV. Voor lozing op oppervlaktewater is een vergunning vereist die niet is verleend.'
+    tekst: 'Lozing van vloeistoffen afkomstig van de opslag van bijproducten op oppervlaktewater is niet toegestaan. Op grond van art. 2.11 BAL (specifieke zorgplicht) dienen nadelige gevolgen voor het oppervlaktewater te worden voorkomen. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
   },
   'melkmachine': {
     titel: 'Melkmachine spoelwater — lozing op oppervlaktewater',
-    tekst: 'Op grond van art. 4.820 BAL (par. 4.82) dient spoelwater van melkmachines te worden geloosd op het vuilwaterriool of de mestkelder. Lozing op oppervlaktewater is verboden. Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+    tekst: 'Op grond van art. 4.814 BAL (par. 4.82) dient naspoelwater van de melkmachine te worden gelijkmatig verspreid over landbouwgrond of geloosd op de mestkelder. Lozing op oppervlaktewater is niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
   },
   'erfwater': {
-    titel: 'Hemelwater erf — lozing verontreinigd water op oppervlaktewater',
-    tekst: 'Afstromend hemelwater van het erf dat in contact is geweest met verontreinigende stoffen mag niet worden geloosd op oppervlaktewater (art. 2.11 BAL, zorgplicht). Schoon hemelwater van een veegschoon erf mag wel worden geloosd (art. 4.795 BAL). Nu het erf niet veegschoon is, geldt dit als verontreinigd water.'
+    titel: 'Hemelwater erf — lozing verontreinigd afstromend water op oppervlaktewater',
+    tekst: 'Afstromend hemelwater dat in contact is geweest met verontreinigende stoffen (mest, voer, spoelwater) mag niet worden geloosd op oppervlaktewater. Dit volgt uit art. 2.11 BAL (specifieke zorgplicht). Alleen schoon hemelwater van een aantoonbaar veegschoon erf mag worden afgevoerd naar oppervlaktewater. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing van verontreinigd water een vergunning vereist die niet is verleend.'
   },
   'mestopslag': {
-    titel: 'Mestopslag (drijfmest/silo) — risico lozing oppervlaktewater',
-    tekst: 'Op grond van art. 4.863 en 4.864 BAL (par. 4.86) dient een mestbassin of silo te voldoen aan constructieve eisen en lekdicht te zijn. Lekkage naar oppervlaktewater is verboden. De zorgplicht (art. 2.11 BAL) verplicht tot regelmatige visuele controle op lekkages.'
+    titel: 'Mestopslag (drijfmest/silo/slurf) — risico op lozing oppervlaktewater',
+    tekst: 'Op grond van paragraaf 4.86 BAL dient een mestbassin, silo of foliebassin lekdicht te zijn ter voorkoming van verontreiniging van oppervlaktewater. Op grond van art. 2.11 BAL (specifieke zorgplicht) is lekkage naar oppervlaktewater niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist.'
   },
   'ontijzering': {
     titel: 'Ontijzeringsinstallatie — lozing op oppervlaktewater',
-    tekst: 'Lozing van water afkomstig van een ontijzeringsinstallatie op oppervlaktewater is niet toegestaan zonder vergunning (art. 3.7 Waterschapsverordening NZV). Op grond van art. 2.11 BAL (zorgplicht) dienen nadelige gevolgen voor het oppervlaktewater te worden voorkomen.'
+    tekst: 'Voor lozing van effluent van een ontijzeringsinstallatie op oppervlaktewater is op grond van art. 3.7 Waterschapsverordening NZV een vergunning vereist. Deze vergunning is niet verleend. Op grond van art. 2.11 BAL (specifieke zorgplicht) dienen nadelige gevolgen voor de kwaliteit van het oppervlaktewater te worden voorkomen.'
   },
   'spuit_zonder': {
-    titel: 'Spuitplaats zonder GBM — lozing op oppervlaktewater',
-    tekst: 'Afvalwater van de spuitplaats (zonder GBM) dient te worden geloosd op het riool (art. 4.104 BAL). Lozing op oppervlaktewater is niet toegestaan zonder vergunning. Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+    titel: 'Spuitplaats voertuigen (zonder GBM) — lozing op oppervlaktewater',
+    tekst: 'Afvalwater van een agrarische wasplaats voor voertuigen die niet in aanraking zijn geweest met gewasbeschermingsmiddelen dient te worden geloosd op het vuilwaterriool (par. 3.5.1 Waterschapsverordening NZV). Lozing op oppervlaktewater is niet toegestaan zonder vergunning (art. 3.7 Waterschapsverordening NZV).'
   },
   'spuit_met': {
-    titel: 'Spuitplaats met GBM — lozing op oppervlaktewater',
-    tekst: 'Lozing van afvalwater van de spuitplaats dat in contact is geweest met gewasbeschermingsmiddelen (GBM) op oppervlaktewater is verboden (art. 4.104 BAL jo. art. 2.11 BAL). Dit afvalwater bevat gewasbeschermingsmiddelen die schadelijk zijn voor het watermilieu. Verplichte lozingsroute is het vuilwaterriool.'
+    titel: 'Spuitplaats voertuigen (met GBM) — lozing op oppervlaktewater',
+    tekst: 'Afvalwater van een spuitplaats dat in aanraking is geweest met gewasbeschermingsmiddelen mag niet worden geloosd op oppervlaktewater. Dit volgt uit art. 2.11 BAL (specifieke zorgplicht) en art. 3.7 Waterschapsverordening NZV. Het afvalwater bevat gewasbeschermingsmiddelen die schadelijk zijn voor het watermilieu. Verplichte lozingsroute is het vuilwaterriool via een biologische zuiveringsinstallatie.'
   }
 };
 
-// Zorgplicht en verordening - altijd toevoegen als er overtredingen zijn
-const ZORGPLICHT_TEKST = 'Bovengenoemde overtredingen maken tevens dat de zorgplicht is geschonden als bedoeld in art. 2.11 BAL. Op grond van art. 3.7 Waterschapsverordening Noorderzijlvest is voor lozing van stoffen op oppervlaktewater een vergunning vereist die niet is verleend. Legalisering is niet mogelijk omdat geen alternatieve lozingsroute is toegestaan.';
+// Vangnetvergunningplicht — altijd toevoegen bij lozingen op oppervlaktewater
+const ZORGPLICHT_TEKST = 'Op grond van art. 3.7 Waterschapsverordening Noorderzijlvest geldt een vangnetvergunningplicht voor het lozen van stoffen op oppervlaktewater die niet elders in de verordening zijn geregeld. Voor de geconstateerde lozingen op oppervlaktewater is geen vergunning verleend. Legalisering is niet mogelijk omdat geen alternatieve legale lozingsroute bestaat.';
+
 
 function getWetsartikelen() {
   const overtredingen = [];
