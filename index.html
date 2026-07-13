@@ -1420,6 +1420,80 @@ function controleerDopOffline() {
   oordeelEl.innerHTML = html;
 }
 
+
+// ===== WETSARTIKELEN PER OVERTREDING =====
+const WETSARTIKELEN = {
+  'afsluiten': {
+    titel: 'Afspuiten machines — lozing op oppervlaktewater',
+    tekst: 'Op grond van art. 4.831 BAL jo. art. 2.11 BAL is lozing van afvalwater afkomstig van het afspuiten van machines op oppervlaktewater niet toegestaan. Vrijkomend spoelwater dient te worden geloosd op de mestkelder of het riool (art. 4.832 BAL). Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+  },
+  'vastemest': {
+    titel: 'Vaste mestopslag — lozing op oppervlaktewater',
+    tekst: 'Op grond van art. 4.838 en 4.839 BAL moeten vrijkomende vloeistoffen van vaste mestopslag gelijkmatig worden verspreid over landbouwgrond. Lozing op oppervlaktewater is verboden. De opslag dient te beschikken over een aaneengesloten bodemvoorziening (art. 4.838 lid 1 BAL). Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+  },
+  'voer': {
+    titel: 'Voeropslag (kuilvoer/bijvoedermiddelen) — lozing op oppervlaktewater',
+    tekst: 'Op grond van art. 4.843 en 4.844 BAL (par. 4.84) dienen vrijkomende vloeistoffen van kuilvoer- en voeropslag te worden geloosd op de mestkelder. Lozing op oppervlaktewater is niet toegestaan. Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+  },
+  'bijproducten': {
+    titel: 'Bijproducten — lozing op oppervlaktewater',
+    tekst: 'Het lozen van vloeistoffen afkomstig van de opslag van bijproducten op oppervlaktewater is niet toegestaan op grond van art. 2.11 BAL (zorgplicht) en art. 3.7 Waterschapsverordening NZV. Voor lozing op oppervlaktewater is een vergunning vereist die niet is verleend.'
+  },
+  'melkmachine': {
+    titel: 'Melkmachine spoelwater — lozing op oppervlaktewater',
+    tekst: 'Op grond van art. 4.820 BAL (par. 4.82) dient spoelwater van melkmachines te worden geloosd op het vuilwaterriool of de mestkelder. Lozing op oppervlaktewater is verboden. Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+  },
+  'erfwater': {
+    titel: 'Hemelwater erf — lozing verontreinigd water op oppervlaktewater',
+    tekst: 'Afstromend hemelwater van het erf dat in contact is geweest met verontreinigende stoffen mag niet worden geloosd op oppervlaktewater (art. 2.11 BAL, zorgplicht). Schoon hemelwater van een veegschoon erf mag wel worden geloosd (art. 4.795 BAL). Nu het erf niet veegschoon is, geldt dit als verontreinigd water.'
+  },
+  'mestopslag': {
+    titel: 'Mestopslag (drijfmest/silo) — risico lozing oppervlaktewater',
+    tekst: 'Op grond van art. 4.863 en 4.864 BAL (par. 4.86) dient een mestbassin of silo te voldoen aan constructieve eisen en lekdicht te zijn. Lekkage naar oppervlaktewater is verboden. De zorgplicht (art. 2.11 BAL) verplicht tot regelmatige visuele controle op lekkages.'
+  },
+  'ontijzering': {
+    titel: 'Ontijzeringsinstallatie — lozing op oppervlaktewater',
+    tekst: 'Lozing van water afkomstig van een ontijzeringsinstallatie op oppervlaktewater is niet toegestaan zonder vergunning (art. 3.7 Waterschapsverordening NZV). Op grond van art. 2.11 BAL (zorgplicht) dienen nadelige gevolgen voor het oppervlaktewater te worden voorkomen.'
+  },
+  'spuit_zonder': {
+    titel: 'Spuitplaats zonder GBM — lozing op oppervlaktewater',
+    tekst: 'Afvalwater van de spuitplaats (zonder GBM) dient te worden geloosd op het riool (art. 4.104 BAL). Lozing op oppervlaktewater is niet toegestaan zonder vergunning. Tevens is de zorgplicht geschonden (art. 2.11 BAL).'
+  },
+  'spuit_met': {
+    titel: 'Spuitplaats met GBM — lozing op oppervlaktewater',
+    tekst: 'Lozing van afvalwater van de spuitplaats dat in contact is geweest met gewasbeschermingsmiddelen (GBM) op oppervlaktewater is verboden (art. 4.104 BAL jo. art. 2.11 BAL). Dit afvalwater bevat gewasbeschermingsmiddelen die schadelijk zijn voor het watermilieu. Verplichte lozingsroute is het vuilwaterriool.'
+  }
+};
+
+// Zorgplicht en verordening - altijd toevoegen als er overtredingen zijn
+const ZORGPLICHT_TEKST = 'Bovengenoemde overtredingen maken tevens dat de zorgplicht is geschonden als bedoeld in art. 2.11 BAL. Op grond van art. 3.7 Waterschapsverordening Noorderzijlvest is voor lozing van stoffen op oppervlaktewater een vergunning vereist die niet is verleend. Legalisering is niet mogelijk omdat geen alternatieve lozingsroute is toegestaan.';
+
+function getWetsartikelen() {
+  const overtredingen = [];
+  const actiefItems = window._actiefBevItems || window._dynamischeBevItems || BEVITEMS_VEEHOUDERIJ;
+  
+  actiefItems.forEach(item => {
+    const waarden = bevindingen[item.id];
+    const waardeLijst = Array.isArray(waarden) ? waarden : [waarden];
+    const heeftOppwater = waardeLijst.some(w => w && (w.includes('Opp') || w.includes('opp')));
+    
+    if (heeftOppwater && WETSARTIKELEN[item.id]) {
+      overtredingen.push(WETSARTIKELEN[item.id]);
+    }
+  });
+  
+  // Check ook ontijzering lozing
+  const ontijzeringLozing = bevindingen['ontijzering_lozing'];
+  const ontijzeringLozingLijst = Array.isArray(ontijzeringLozing) ? ontijzeringLozing : [ontijzeringLozing];
+  if (ontijzeringLozingLijst.some(w => w && w.includes('Opp')) && WETSARTIKELEN['ontijzering']) {
+    if (!overtredingen.find(o => o.titel.includes('Ontijzer'))) {
+      overtredingen.push(WETSARTIKELEN['ontijzering']);
+    }
+  }
+  
+  return overtredingen;
+}
+
 // ===== STATE =====
 let currentTab = 0;
 const totalTabs = 6;
@@ -1957,6 +2031,47 @@ async function downloadPDF() {
   addRow('Vervolgactie', d.vervolgactie);
   addText('Overtredingen / Aandachtspunten', d.overtredingen);
   addText('Genomen acties ter plaatse', d.acties);
+
+  // Wetsartikelen sectie
+  const wetsOvertredingen = getWetsartikelen();
+  if (wetsOvertredingen.length > 0) {
+    if (y > 220) { doc.addPage(); y = 20; }
+    addSection('Wettelijke grondslag overtredingen');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(26, 41, 56);
+    const intro = 'Dat betrokkene in overtreding is blijkt uit de hierna te beschrijven wet- en regelgeving.';
+    const introLines = doc.splitTextToSize(intro, 178);
+    introLines.forEach(l => { doc.text(l, 16, y); y += 5; });
+    y += 3;
+    
+    wetsOvertredingen.forEach((ov, idx) => {
+      if (y > 240) { doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(0, 112, 184);
+      doc.text((idx + 1) + '. ' + ov.titel, 16, y);
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(26, 41, 56);
+      const tekstLines = doc.splitTextToSize(ov.tekst, 178);
+      tekstLines.forEach(l => {
+        if (y > 270) { doc.addPage(); y = 20; }
+        doc.text(l, 16, y);
+        y += 5;
+      });
+      y += 3;
+    });
+    
+    // Zorgplicht altijd toevoegen
+    if (y > 250) { doc.addPage(); y = 20; }
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(8);
+    doc.setTextColor(107, 124, 143);
+    const zorgLines = doc.splitTextToSize(ZORGPLICHT_TEKST, 178);
+    zorgLines.forEach(l => { doc.text(l, 16, y); y += 5; });
+    y += 5;
+  }
 
   // Fotos pagina
   if (fotos.length > 0) {
