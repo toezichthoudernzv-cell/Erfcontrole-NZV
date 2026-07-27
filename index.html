@@ -2741,7 +2741,7 @@ window.buildSamenvatting = function() {
 
 // ===== ONTVANGERS =====
 function laadOntvangers() {
-  const vasteOntvangers = [{"naam": "Remko Meijer", "email": "remko.meijer@noorderzijlvest.nl"}, {"naam": "Jan Berends", "email": "j.berends@noorderzijlvest.nl"}, {"naam": "Klaas Kuiper", "email": "k.kuiper@noorderzijlvest.nl"}, {"naam": "Jan Willem Zoer", "email": "j.w.zoer@noorderzijlvest.nl"}, {"naam": "Bob Boonstra", "email": "b.boonstra@noorderzijlvest.nl"}];
+  const vasteOntvangers = [{"naam": "Livina Meijer", "email": "l.meijer@noorderzijlvest.nl"}, {"naam": "Remko Meijer", "email": "remko.meijer@noorderzijlvest.nl"}, {"naam": "Jan Berends", "email": "j.berends@noorderzijlvest.nl"}, {"naam": "Klaas Kuiper", "email": "k.kuiper@noorderzijlvest.nl"}, {"naam": "Jan Willem Zoer", "email": "j.w.zoer@noorderzijlvest.nl"}, {"naam": "Bob Boonstra", "email": "b.boonstra@noorderzijlvest.nl"}];
   const opgeslagen = JSON.parse(localStorage.getItem('nz_ontvangers') || '[]');
   const ontvangers = opgeslagen.length > 0 ? opgeslagen : vasteOntvangers;
   const sel = document.getElementById('emailOntvanger');
@@ -3080,6 +3080,7 @@ goTab = function(n) {
 function koppelHandhaverAanMail(naam) {
   if (!naam) return;
   const vasteOntvangers = [
+    {"naam": "Livina Meijer", "email": "l.meijer@noorderzijlvest.nl"},
     {"naam": "Remko Meijer", "email": "remko.meijer@noorderzijlvest.nl"},
     {"naam": "Jan Berends", "email": "j.berends@noorderzijlvest.nl"},
     {"naam": "Klaas Kuiper", "email": "k.kuiper@noorderzijlvest.nl"},
