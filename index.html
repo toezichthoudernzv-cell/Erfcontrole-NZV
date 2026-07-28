@@ -751,7 +751,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
       <div id="bedrijfstypeInfo" style="display:none;margin-top:6px;font-size:11px;font-weight:600;padding:6px 10px;border-radius:6px;"></div>
     </div>
   </div>
-  <div class="sectie-nav"><button class="sectie-nav-next" onclick="nextTab()">Volgende ›</button></div>
+
 </div>
 
 <!-- SECTIE 1: BEVINDINGEN -->
@@ -853,7 +853,6 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
       </div>
     </div>
   </div>
-  <div class="sectie-nav"><button class="sectie-nav-prev" onclick="prevTab()">‹ Vorige</button><button class="sectie-nav-next" onclick="nextTab()">Volgende ›</button></div>
 </div>
 
 <!-- SECTIE 3: FOTO'S -->
@@ -878,7 +877,6 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
     <div class="card-title">🏷 Fotolabels</div>
     <div id="fotoLabels"></div>
   </div>
-  <div class="sectie-nav"><button class="sectie-nav-prev" onclick="prevTab()">‹ Vorige</button><button class="sectie-nav-next" onclick="nextTab()">Volgende ›</button></div>
 </div>
 
 <!-- SECTIE 4: VERZENDEN -->
@@ -890,28 +888,23 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
   <div class="card">
     <div class="card-title">📧 Verstuur rapport</div>
     <div class="field">
-      <label>Ontvanger <span class="req">*</span></label>
-      <select id="emailOntvanger">
-        <option value="">— Selecteer ontvanger —</option>
-      </select>
-      <div id="emailOntvangerLeeg" style="display:none;margin-top:6px;font-size:12px;color:var(--oranje);">
-        ⚠️ Nog geen mailadressen ingesteld. Vul hieronder een adres in:
+      <label>Ontvanger</label>
+      <div style="padding:12px 14px;background:var(--lichtgrijs);border:1.5px solid var(--rand);border-radius:8px;font-size:14px;font-weight:600;">
+        📧 Livina Meijer — l.meijer@noorderzijlvest.nl
       </div>
-      <input type="text" id="emailHandmatig" placeholder="Bijv. handhaving@noorderzijlvest.nl" style="display:none;margin-top:6px;">
+      <input type="hidden" id="emailOntvanger" value="l.meijer@noorderzijlvest.nl">
     </div>
     <div class="field">
       <label>CC (optioneel)</label>
-      <div style="display:flex;gap:8px;align-items:flex-start;">
-        <input type="text" id="emailCC" placeholder="Bijv. teamleider@noorderzijlvest.nl" style="flex:1;" oninput="opslaanCCHint()">
-        <button onclick="vastzetten()" id="vastzet_btn" title="Vastzetten" style="flex-shrink:0;padding:10px 12px;background:var(--lichtgrijs);color:var(--grijs);border:1.5px solid var(--rand);border-radius:8px;cursor:pointer;font-size:15px;line-height:1;" title="Zet dit adres vast">📌</button>
-      </div>
-      <div id="vastzet_status" style="font-size:11px;color:var(--grijs);margin-top:4px;min-height:14px;"></div>
+      <select id="emailCC">
+        <option value="">— Geen CC —</option>
+      </select>
     </div>
     <div class="field">
       <label>Aanvullende notities voor e-mail</label>
       <textarea id="emailNotities" placeholder="Optioneel aanvullend bericht..."></textarea>
     </div>
-    <button class="gps-btn" onclick="downloadPDF()" style="background:var(--blauw);margin-bottom:10px;font-size:14px;padding:13px;">
+    <button class="gps-btn" onclick="downloadPDF().catch(err => { console.error('PDF mislukt:', err); showToast('❌ PDF maken mislukt — heb je internet?'); })" style="background:var(--blauw);margin-bottom:10px;font-size:14px;padding:13px;">
       <span>⬇️</span> PDF downloaden (voor zaaksysteem)
     </button>
     <div style="background:#FFF8E1;border:1px solid #F5A623;border-radius:8px;padding:10px 12px;font-size:12px;color:#5D4037;margin-bottom:10px;line-height:1.6;">
@@ -1544,7 +1537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ===== TABS =====
 function goTab(n) {
-  if (n === 4) { setTimeout(() => { window.buildSamenvatting(); laadOntvangers(); laadVastCC(); }, 10); }
+  if (n === 4) { setTimeout(() => { window.buildSamenvatting(); laadOntvangers(); }, 10); }
   // Verberg alle secties via class
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   // Toon actieve sectie
@@ -2413,36 +2406,6 @@ function wisselBedrijfstype(type) {
   herbouwBevMatrix();
 }
 
-// ===== CC VASTZETTEN =====
-function vastzetten() {
-  const cc = document.getElementById('emailCC').value.trim();
-  if (!cc) { showToast('⚠️ Vul eerst een CC-adres in'); return; }
-  localStorage.setItem('nz_vastCC', cc);
-  const btn = document.getElementById('vastzet_btn');
-  const status = document.getElementById('vastzet_status');
-  if (btn) btn.style.background = 'var(--groen)';
-  if (status) { status.textContent = '📌 Vastgezet: ' + cc; status.style.color = 'var(--groen)'; }
-  showToast('📌 CC-adres vastgezet');
-}
-
-function laadVastCC() {
-  const vast = localStorage.getItem('nz_vastCC');
-  if (!vast) return;
-  const ccEl = document.getElementById('emailCC');
-  const status = document.getElementById('vastzet_status');
-  if (ccEl && !ccEl.value) ccEl.value = vast;
-  if (status) { status.textContent = '📌 Vastgezet: ' + vast; status.style.color = 'var(--grijs)'; }
-}
-
-function opslaanCCHint() {
-  const status = document.getElementById('vastzet_status');
-  if (status && status.textContent.startsWith('📌')) {
-    status.textContent = '';
-    const btn = document.getElementById('vastzet_btn');
-    if (btn) btn.style.background = 'var(--lichtgrijs)';
-  }
-}
-
 // ===== EMAIL =====
 function verstuurEmail() {
   const d = getFormData();
@@ -2466,6 +2429,9 @@ function verstuurEmail() {
   body += `INSPECTIERAPPORT ERFCONTROLE AGRARISCH\n`;
   body += `Waterschap Noorderzijlvest\n`;
   body += `${lijn}\n\n`;
+
+  body += `Beste Livina,\n\n`;
+  body += `Hierbij weer een rapport voor je. Alvast bedankt voor het verwerken — we vinden het echt top hoe jij dat altijd voor ons regelt!\n\n`;
 
   body += `INSPECTIEGEGEVENS\n`;
   body += `Datum:           ${d.datum}\n`;
@@ -2532,11 +2498,16 @@ async function verzendAlles() {
   const to = selVal2 || handmatigVal2;
   if (!to) { showToast('⚠️ Selecteer of vul een ontvanger in'); return; }
 
-  showToast('⏳ PDF wordt aangemaakt...');
-  await downloadPDF();
-  await new Promise(r => setTimeout(r, 1500));
-  verstuurEmail();
-  showToast('✅ Klaar! Druk op 🗑 om het formulier te wissen.');
+  try {
+    showToast('⏳ PDF wordt aangemaakt...');
+    await downloadPDF();
+    await new Promise(r => setTimeout(r, 1500));
+    verstuurEmail();
+    showToast('✅ Klaar! Druk op 🗑 om het formulier te wissen.');
+  } catch (err) {
+    console.error('Verzenden mislukt:', err);
+    showToast('❌ Versturen mislukt — heb je internet? (nodig voor de PDF)');
+  }
 }
 
 function resetFormulier(metBevestiging) {
@@ -2739,31 +2710,23 @@ window.buildSamenvatting = function() {
   el.innerHTML = html;
 };
 
-// ===== ONTVANGERS =====
+// ===== ONTVANGERS (CC-lijst met toezichthouders; ontvanger zelf ligt vast op Livina Meijer) =====
+const NZ_ONTVANGER_EMAIL = 'l.meijer@noorderzijlvest.nl';
 function laadOntvangers() {
   const vasteOntvangers = [{"naam": "Livina Meijer", "email": "l.meijer@noorderzijlvest.nl"}, {"naam": "Remko Meijer", "email": "remko.meijer@noorderzijlvest.nl"}, {"naam": "Jan Berends", "email": "j.berends@noorderzijlvest.nl"}, {"naam": "Klaas Kuiper", "email": "k.kuiper@noorderzijlvest.nl"}, {"naam": "Jan Willem Zoer", "email": "j.w.zoer@noorderzijlvest.nl"}, {"naam": "Bob Boonstra", "email": "b.boonstra@noorderzijlvest.nl"}];
   const opgeslagen = JSON.parse(localStorage.getItem('nz_ontvangers') || '[]');
   const ontvangers = opgeslagen.length > 0 ? opgeslagen : vasteOntvangers;
-  const sel = document.getElementById('emailOntvanger');
-  const leegMsg = document.getElementById('emailOntvangerLeeg');
-  sel.innerHTML = '<option value="">— Selecteer ontvanger —</option>';
-  if (ontvangers.length === 0) {
-    // Geen ontvangers ingesteld — toon handmatig e-mailinvoerveld
-    leegMsg.style.display = 'block';
-    leegMsg.innerHTML = '⚠️ Nog geen mailadressen ingesteld. Vul hieronder een adres in:';
-    document.getElementById('emailHandmatig').style.display = 'block';
-    sel.style.display = 'none';
-  } else {
-    leegMsg.style.display = 'none';
-    document.getElementById('emailHandmatig').style.display = 'none';
-    sel.style.display = 'block';
-    ontvangers.forEach(o => {
-      const opt = document.createElement('option');
-      opt.value = o.email;
-      opt.textContent = o.naam + ' — ' + o.email;
-      sel.appendChild(opt);
-    });
-  }
+  const sel = document.getElementById('emailCC');
+  if (!sel) return;
+  const huidigeKeuze = sel.value;
+  sel.innerHTML = '<option value="">— Geen CC —</option>';
+  ontvangers.filter(o => o.email !== NZ_ONTVANGER_EMAIL).forEach(o => {
+    const opt = document.createElement('option');
+    opt.value = o.email;
+    opt.textContent = o.naam + ' — ' + o.email;
+    sel.appendChild(opt);
+  });
+  if (huidigeKeuze) sel.value = huidigeKeuze;
 }
 
 
@@ -3067,7 +3030,7 @@ function wisAlleInspecties() {
 const origGoTab = goTab;
 goTab = function(n) {
   origGoTab(n);
-  if (n === 4) { setTimeout(() => { window.buildSamenvatting(); laadOntvangers(); laadVastCC(); }, 10); }
+  if (n === 4) { setTimeout(() => { window.buildSamenvatting(); laadOntvangers(); }, 10); }
   if (n === 5) setTimeout(initKaart, 50);
   // Heterdaad tab 6 — zorg dat sectie zichtbaar is
   const sec6 = document.getElementById('sec6');
@@ -3076,7 +3039,7 @@ goTab = function(n) {
 };
 
 
-// ===== HANDHAVER KOPPELT AUTOMATISCH AAN ONTVANGER =====
+// ===== HANDHAVER KOPPELT AUTOMATISCH AAN CC =====
 function koppelHandhaverAanMail(naam) {
   if (!naam) return;
   const vasteOntvangers = [
@@ -3088,19 +3051,16 @@ function koppelHandhaverAanMail(naam) {
     {"naam": "Bob Boonstra", "email": "b.boonstra@noorderzijlvest.nl"}
   ];
   const gevonden = vasteOntvangers.find(o => o.naam === naam);
-  if (!gevonden) return;
+  if (!gevonden || gevonden.email === NZ_ONTVANGER_EMAIL) return;
 
-  // Sla op zodat laadOntvangers het kan selecteren
-  window._gekozenmailAdres = gevonden.email;
-
-  // Zet direct in dropdown - zorg eerst dat hij gevuld is
+  // Zet direct in de CC-dropdown - zorg eerst dat hij gevuld is
   laadOntvangers();
-  const sel = document.getElementById('emailOntvanger');
+  const sel = document.getElementById('emailCC');
   if (sel) {
     for (let i = 0; i < sel.options.length; i++) {
       if (sel.options[i].value === gevonden.email) {
         sel.selectedIndex = i;
-        showToast('📧 ' + gevonden.naam + ' ingevuld als ontvanger');
+        showToast('📧 ' + gevonden.naam + ' toegevoegd als CC');
         return;
       }
     }
