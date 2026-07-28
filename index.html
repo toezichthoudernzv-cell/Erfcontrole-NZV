@@ -1597,11 +1597,8 @@ function updateNav() {
   document.getElementById('prevBtn').style.display = currentTab === 0 ? 'none' : 'block';
   const nextBtn = document.getElementById('nextBtn');
 
-  // Bepaal of dit de laatste tab is voor dit type controle
-  const isLaatsteTab =
-    (type === 'heterdaad' && currentTab === 4) ||
-    (type === 'piket' && currentTab === 4) ||
-    (!type || (type !== 'heterdaad' && type !== 'piket') && currentTab === 4);
+  // Bepaal of dit de laatste tab is (dat is altijd tab 4, "Verzenden")
+  const isLaatsteTab = currentTab === 4;
 
   if (isLaatsteTab) {
     nextBtn.style.display = 'none';
