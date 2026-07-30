@@ -805,6 +805,10 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
         </label>
       </div>
     </div>
+    <div class="field" id="hercontroleDatumWrap" style="display:none;">
+      <label>Datum hercontrole</label>
+      <input type="date" id="hercontroleDatum">
+    </div>
   </div>
 </div>
 
@@ -885,6 +889,57 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
     <div class="card-title">📋 Samenvatting inspectie</div>
     <div id="samenvattingContent"></div>
   </div>
+  <div class="card" id="lhsoCard" style="display:none;">
+    <div class="card-title">⚖️ LHSO-beoordeling</div>
+    <a href="https://handhavingsadviseur.nl/" target="_blank" rel="noopener" class="gps-btn" style="display:block;text-align:center;text-decoration:none;background:var(--blauw);margin-bottom:12px;font-size:14px;padding:12px;">
+      🔗 Open Handhavingsadviseur.nl (LHSO-tool) →
+    </a>
+    <div style="font-size:12px;color:var(--grijs);margin-bottom:12px;">
+      Loop de vragen in de tool door en zet hieronder het resultaat over — dit komt automatisch in het rapport.
+    </div>
+    <div class="field">
+      <label>Categorie overtreding</label>
+      <select id="lhsoCategorie">
+        <option value="">— Selecteer —</option>
+        <option value="Waterkwaliteit">Waterkwaliteit</option>
+        <option value="Keur - keringen">Keur - keringen</option>
+        <option value="Keur - grondwateronttrekkingen">Keur - grondwateronttrekkingen</option>
+        <option value="Keur - oppervlaktewatersysteem">Keur - oppervlaktewatersysteem</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Ernst van de overtreding (gevolgen)</label>
+      <select id="lhsoErnst">
+        <option value="">— Selecteer —</option>
+        <option value="Vrijwel nihil">Vrijwel nihil</option>
+        <option value="Beperkt">Beperkt</option>
+        <option value="Van belang">Van belang</option>
+        <option value="Aanzienlijk, onomkeerbaar">Aanzienlijk, onomkeerbaar</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Gedrag overtreder</label>
+      <select id="lhsoGedrag">
+        <option value="">— Selecteer —</option>
+        <option value="Goedwillend">Goedwillend</option>
+        <option value="Onverschillig">Onverschillig</option>
+        <option value="Calculerend">Calculerend</option>
+        <option value="Bewust, structureel">Bewust, structureel</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Segment / vak (bijv. B2)</label>
+      <input type="text" id="lhsoSegment" placeholder="Bijv. B2">
+    </div>
+    <div class="field">
+      <label>Geadviseerde interventie</label>
+      <input type="text" id="lhsoInterventie" placeholder="Bijv. Waarschuwen / Last onder dwangsom">
+    </div>
+    <div class="field">
+      <label>Motivering</label>
+      <textarea id="lhsoMotivering" rows="3" placeholder="Toelichting op de keuze"></textarea>
+    </div>
+  </div>
   <div class="card">
     <div class="card-title">📧 Verstuur rapport</div>
     <div class="field">
@@ -916,7 +971,7 @@ body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--tek
       <span>📨</span> PDF downloaden & versturen via Outlook
     </button>
     <div style="margin-top:16px;padding-top:16px;border-top:1px dashed var(--rand);">
-      <button onclick="resetFormulier(true)" style="width:100%;padding:13px;background:none;border:2px solid var(--rood);color:var(--rood);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
+      <button onclick="resetFormulier(true, this)" style="width:100%;padding:13px;background:none;border:2px solid var(--rood);color:var(--rood);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
         🗑 Nieuw formulier — alles wissen
       </button>
     </div>
@@ -1415,53 +1470,53 @@ function controleerDopOffline() {
 
 
 // ===== WETSARTIKELEN PER OVERTREDING =====
-// Gebaseerd op BAL (Besluit activiteiten leefomgeving 2024) en Waterschapsverordening NZV
-// Alleen oppervlaktewatercomponent — waterschap NZV is bevoegd gezag voor oppervlaktewater
+// Gebaseerd op BAL (Besluit activiteiten leefomgeving) en, waar nodig, de Omgevingswet.
+// Geen verwijzingen naar de Waterschapsverordening — die zorgen alleen voor verwarring.
 const WETSARTIKELEN = {
   'afsluiten': {
     titel: 'Afspuiten machines — lozing op oppervlaktewater',
-    tekst: 'Op grond van paragraaf 4.82 BAL (art. 4.813 e.v.) dient waswater van het reinigen van machines te worden geloosd op de mestkelder, waarna verspreiding over landbouwgrond plaatsvindt. Lozing op oppervlaktewater is niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV (vangnetvergunningplicht) is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
+    tekst: 'Ik heb geconstateerd dat er waswater van het reinigen van machines wordt geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving. Volgens paragraaf 4.82 BAL (art. 4.813 e.v.) dient dit waswater te worden geloosd op de mestkelder, waarna verspreiding over landbouwgrond plaatsvindt. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'vastemest': {
     titel: 'Vaste mestopslag — lozing op oppervlaktewater',
-    tekst: 'Op grond van art. 4.838 BAL dient de opslag van vaste mest een aaneengesloten bodemvoorziening te hebben zodat vrijkomende vloeistoffen worden opgevangen. Op grond van art. 4.839 BAL moeten vrijkomende vloeistoffen gelijkmatig worden verspreid over landbouwgrond. Lozing op oppervlaktewater is verboden. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
+    tekst: 'Ik heb geconstateerd dat er mestsappen worden geloosd in het oppervlaktewater. Dit is een overtreding van de geldende regelgeving. Volgens artikel 4.839 van het Besluit activiteiten leefomgeving (Bal) moet afvalwater uit de opslag van vaste mest, champost of dikke fractie op een verantwoorde manier worden afgevoerd om verontreiniging van bodem en oppervlaktewater te voorkomen. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 Bal, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'voer': {
     titel: 'Voeropslag (kuilvoer/bijvoedermiddelen) — lozing op oppervlaktewater',
-    tekst: 'Op grond van paragraaf 4.84 BAL dienen vrijkomende vloeistoffen (perssap en percolaatwater) van kuilvoer- en voeropslag te worden geloosd op de mestkelder. Lozing op oppervlaktewater is niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
+    tekst: 'Ik heb geconstateerd dat er perssap/percolaatwater van kuilvoer- of voeropslag wordt geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving. Volgens paragraaf 4.84 BAL dienen deze vrijkomende vloeistoffen te worden geloosd op de mestkelder. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'bijproducten': {
     titel: 'Bijproducten — lozing op oppervlaktewater',
-    tekst: 'Lozing van vloeistoffen afkomstig van de opslag van bijproducten op oppervlaktewater is niet toegestaan. Op grond van art. 2.11 BAL (specifieke zorgplicht) dienen nadelige gevolgen voor het oppervlaktewater te worden voorkomen. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
+    tekst: 'Ik heb geconstateerd dat er vloeistoffen afkomstig van de opslag van bijproducten worden geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'melkmachine': {
     titel: 'Melkmachine spoelwater — lozing op oppervlaktewater',
-    tekst: 'Op grond van art. 4.814 BAL (par. 4.82) dient naspoelwater van de melkmachine te worden gelijkmatig verspreid over landbouwgrond of geloosd op de mestkelder. Lozing op oppervlaktewater is niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist die niet is verleend.'
+    tekst: 'Ik heb geconstateerd dat er spoelwater van de melkmachine wordt geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving. Volgens artikel 4.814 BAL (par. 4.82) dient dit naspoelwater gelijkmatig verspreid te worden over landbouwgrond of geloosd op de mestkelder. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'erfwater': {
     titel: 'Hemelwater erf — lozing verontreinigd afstromend water op oppervlaktewater',
-    tekst: 'Afstromend hemelwater dat in contact is geweest met verontreinigende stoffen (mest, voer, spoelwater) mag niet worden geloosd op oppervlaktewater. Dit volgt uit art. 2.11 BAL (specifieke zorgplicht). Alleen schoon hemelwater van een aantoonbaar veegschoon erf mag worden afgevoerd naar oppervlaktewater. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing van verontreinigd water een vergunning vereist die niet is verleend.'
+    tekst: 'Ik heb geconstateerd dat er verontreinigd afstromend hemelwater (in contact geweest met mest, voer of spoelwater) wordt geloosd op het oppervlaktewater, omdat het erf niet (aantoonbaar veegschoon) is. Dit is een overtreding van de geldende regelgeving. Alleen schoon hemelwater van een veegschoon erf mag worden afgevoerd naar oppervlaktewater. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'mestopslag': {
-    titel: 'Mestopslag (drijfmest/silo/slurf) — risico op lozing oppervlaktewater',
-    tekst: 'Op grond van paragraaf 4.86 BAL dient een mestbassin, silo of foliebassin lekdicht te zijn ter voorkoming van verontreiniging van oppervlaktewater. Op grond van art. 2.11 BAL (specifieke zorgplicht) is lekkage naar oppervlaktewater niet toegestaan. Op grond van art. 3.7 Waterschapsverordening NZV is voor lozing op oppervlaktewater een vergunning vereist.'
+    titel: 'Mestopslag (drijfmest/silo/slurf) — lozing op oppervlaktewater',
+    tekst: 'Ik heb geconstateerd dat er drijfmest/slurf lekt uit de mestopslag (bassin, silo of foliebassin) en in het oppervlaktewater terechtkomt. Dit is een overtreding van de geldende regelgeving. Volgens paragraaf 4.86 BAL dient een mestbassin, silo of foliebassin lekdicht te zijn ter voorkoming van verontreiniging van oppervlaktewater. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'ontijzering': {
     titel: 'Ontijzeringsinstallatie — lozing op oppervlaktewater',
-    tekst: 'Voor lozing van effluent van een ontijzeringsinstallatie op oppervlaktewater is op grond van art. 3.7 Waterschapsverordening NZV een vergunning vereist. Deze vergunning is niet verleend. Op grond van art. 2.11 BAL (specifieke zorgplicht) dienen nadelige gevolgen voor de kwaliteit van het oppervlaktewater te worden voorkomen.'
+    tekst: 'Ik heb geconstateerd dat er effluent van de ontijzeringsinstallatie wordt geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving; hiervoor bestaat geen legale lozingsroute. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'spuit_zonder': {
     titel: 'Spuitplaats voertuigen (zonder GBM) — lozing op oppervlaktewater',
-    tekst: 'Afvalwater van een agrarische wasplaats voor voertuigen die niet in aanraking zijn geweest met gewasbeschermingsmiddelen dient te worden geloosd op het vuilwaterriool (par. 3.5.1 Waterschapsverordening NZV). Lozing op oppervlaktewater is niet toegestaan zonder vergunning (art. 3.7 Waterschapsverordening NZV).'
+    tekst: 'Ik heb geconstateerd dat er afvalwater van de wasplaats voor voertuigen (niet in aanraking geweest met gewasbeschermingsmiddelen) wordt geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving; dit afvalwater dient te worden geloosd op het vuilwaterriool. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   },
   'spuit_met': {
     titel: 'Spuitplaats voertuigen (met GBM) — lozing op oppervlaktewater',
-    tekst: 'Afvalwater van een spuitplaats dat in aanraking is geweest met gewasbeschermingsmiddelen mag niet worden geloosd op oppervlaktewater. Dit volgt uit art. 2.11 BAL (specifieke zorgplicht) en art. 3.7 Waterschapsverordening NZV. Het afvalwater bevat gewasbeschermingsmiddelen die schadelijk zijn voor het watermilieu. Verplichte lozingsroute is het vuilwaterriool via een biologische zuiveringsinstallatie.'
+    tekst: 'Ik heb geconstateerd dat er afvalwater van de spuitplaats (in aanraking geweest met gewasbeschermingsmiddelen) wordt geloosd op het oppervlaktewater. Dit is een overtreding van de geldende regelgeving; dit afvalwater bevat gewasbeschermingsmiddelen die schadelijk zijn voor het watermilieu en dient via een biologische zuiveringsinstallatie op het vuilwaterriool te worden geloosd. Daarnaast stelt artikel 4.3 van de Omgevingswet dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen.'
   }
 };
 
-// Vangnetvergunningplicht — altijd toevoegen bij lozingen op oppervlaktewater
-const ZORGPLICHT_TEKST = 'Op grond van art. 3.7 Waterschapsverordening Noorderzijlvest geldt een vangnetvergunningplicht voor het lozen van stoffen op oppervlaktewater die niet elders in de verordening zijn geregeld. Voor de geconstateerde lozingen op oppervlaktewater is geen vergunning verleend. Legalisering is niet mogelijk omdat geen alternatieve legale lozingsroute bestaat.';
+// Specifieke zorgplicht — altijd toevoegen bij lozingen op oppervlaktewater
+const ZORGPLICHT_TEKST = 'Dit is een overtreding van de geldende regelgeving. Artikel 4.3 van de Omgevingswet stelt dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen. Voor de geconstateerde lozingen op oppervlaktewater bestaat geen legale lozingsroute; legalisering is niet mogelijk.';
 
 
 function getWetsartikelen() {
@@ -1472,10 +1527,17 @@ function getWetsartikelen() {
     const waarden = bevindingen[item.id];
     const waardeLijst = Array.isArray(waarden) ? waarden : [waarden];
     const heeftOppwater = waardeLijst.some(w => w && (w.includes('Opp') || w.includes('opp')));
-    
-    if (heeftOppwater && WETSARTIKELEN[item.id]) {
-      overtredingen.push(WETSARTIKELEN[item.id]);
+
+    if (!heeftOppwater || !WETSARTIKELEN[item.id]) return;
+
+    // Uitzondering: schoon hemelwater dat op een veegschoon erf op oppervlaktewater loost is toegestaan
+    if (item.id === 'erfwater') {
+      const erfveeg = bevindingen['erfveeg'];
+      const erfveegWaarde = Array.isArray(erfveeg) ? erfveeg[0] : erfveeg;
+      if (erfveegWaarde === 'Ja') return; // erf is veegschoon → geen overtreding
     }
+
+    overtredingen.push(WETSARTIKELEN[item.id]);
   });
   
   // Check ook ontijzering lozing
@@ -1500,7 +1562,7 @@ let perceelLat = null, perceelLon = null;
 let dopOordeel = null; // { oordeel, gebruik_advies, driftreductie, drd_gecertificeerd }
 
 const BEVITEMS_VEEHOUDERIJ = [
-  { id: 'erfwater',    label: 'Hemelwater erf afspoeling (schoon)', opties: ['Riool','Bodem','Mestkelder','Opp. water','N.v.t.'], optieKleuren: ['ok','ok','ok','ok','nvt'] },
+  { id: 'erfwater',    label: 'Hemelwater erf afspoeling (schoon)', opties: ['Riool','Bodem','Mestkelder','Opp. water','N.v.t.'], optieKleuren: ['ok','ok','ok','ok','nvt'], waarschuwing: 'Opp. water' },
   { id: 'afsluiten',  label: 'Afspuiten machines',                  opties: ['Riool','Bodem','Mestkelder','Opp.water','N.v.t'], optieKleuren: ['ok','nok','ok','nok','nvt'], waarschuwing: 'Opp.water' },
   { id: 'vastemest',  label: 'Vaste mestopslag',                    opties: ['Riool','Bodem','Mestkelder','Opp. water','N.v.t'], optieKleuren: ['ok','ok','ok','nok','nvt'], waarschuwing: 'Opp. water' },
   { id: 'voer',       label: 'Voeropslag',                          opties: ['Riool','Bodem','Mestkelder','Opp. water','Opslagtank','N.v.t'], optieKleuren: ['ok','ok','ok','nok','ok','nvt'], waarschuwing: 'Opp. water' },
@@ -1512,7 +1574,7 @@ const BEVITEMS_VEEHOUDERIJ = [
 ];
 
 const BEVITEMS_AKKERBOUW = [
-  { id: 'erfwater',      label: 'Hemelwater erf afspoeling (schoon)',    opties: ['Riool','Bodem','Mestkelder','Opp. water','N.v.t.'], optieKleuren: ['ok','ok','ok','ok','nvt'] },
+  { id: 'erfwater',      label: 'Hemelwater erf afspoeling (schoon)',    opties: ['Riool','Bodem','Mestkelder','Opp. water','N.v.t.'], optieKleuren: ['ok','ok','ok','ok','nvt'], waarschuwing: 'Opp. water' },
   { id: 'afsluiten',    label: 'Afspuiten machines',                     opties: ['Riool','Bodem','Mestkelder','Opp.water','N.v.t.'], optieKleuren: ['ok','nok','ok','nok','nvt'], waarschuwing: 'Opp.water' },
   { id: 'vastemest',    label: 'Vaste mestopslag',                       opties: ['Riool','Bodem','Mestkelder','Opp.water','N.v.t.'], optieKleuren: ['ok','ok','ok','nok','nvt'], waarschuwing: 'Opp.water' },
   { id: 'spuit_zonder', label: 'Spuitplaats voertuigen (zonder GBM)',    opties: ['Riool','Onverharde bodem (perceel)','Oppervlaktewater','N.v.t.'], optieKleuren: ['ok','ok','nok','nvt'], waarschuwing: 'Oppervlaktewater' },
@@ -1616,6 +1678,17 @@ function selectRadio(groupId, el) {
   const group = document.getElementById(groupId) || el.closest('.radio-group');
   group.querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
   el.classList.add('selected');
+
+  if (groupId === 'eindoordeel') {
+    const lhsoCard = document.getElementById('lhsoCard');
+    const waarde = el.querySelector('input').value;
+    if (lhsoCard) lhsoCard.style.display = (waarde === 'Voldoet') ? 'none' : 'block';
+  }
+  if (groupId === 'vervolgactie') {
+    const wrap = document.getElementById('hercontroleDatumWrap');
+    const waarde = el.querySelector('input').value;
+    if (wrap) wrap.style.display = (waarde === 'Hercontrole') ? 'block' : 'none';
+  }
 }
 
 // ===== BEVINDINGEN =====
@@ -1917,7 +1990,14 @@ function getFormData() {
     overtredingen: document.getElementById('overtredingen').value,
     acties: document.getElementById('acties').value,
     vervolgactie: radioVal('vervolgactie'),
+    hercontroleDatum: document.getElementById('hercontroleDatum') ? document.getElementById('hercontroleDatum').value : '',
     eindoordeel: radioVal('eindoordeel'),
+    lhsoCategorie: document.getElementById('lhsoCategorie') ? document.getElementById('lhsoCategorie').value : '',
+    lhsoErnst: document.getElementById('lhsoErnst') ? document.getElementById('lhsoErnst').value : '',
+    lhsoGedrag: document.getElementById('lhsoGedrag') ? document.getElementById('lhsoGedrag').value : '',
+    lhsoSegment: document.getElementById('lhsoSegment') ? document.getElementById('lhsoSegment').value : '',
+    lhsoInterventie: document.getElementById('lhsoInterventie') ? document.getElementById('lhsoInterventie').value : '',
+    lhsoMotivering: document.getElementById('lhsoMotivering') ? document.getElementById('lhsoMotivering').value : '',
   };
 }
 
@@ -2022,6 +2102,9 @@ async function downloadPDF() {
   addSection('Oordeel & Vervolgacties');
   addRow('Eindoordeel', d.eindoordeel);
   addRow('Vervolgactie', d.vervolgactie);
+  if (d.vervolgactie === 'Hercontrole' && d.hercontroleDatum) {
+    addRow('Datum hercontrole', d.hercontroleDatum);
+  }
   addText('Overtredingen / Aandachtspunten', d.overtredingen);
   addText('Genomen acties ter plaatse', d.acties);
 
@@ -2064,6 +2147,18 @@ async function downloadPDF() {
     const zorgLines = doc.splitTextToSize(ZORGPLICHT_TEKST, 178);
     zorgLines.forEach(l => { doc.text(l, 16, y); y += 5; });
     y += 5;
+  }
+
+  // LHSO-beoordeling — alleen tonen als er iets is ingevuld
+  if (d.lhsoCategorie || d.lhsoErnst || d.lhsoGedrag || d.lhsoSegment || d.lhsoInterventie || d.lhsoMotivering) {
+    if (y > 220) { doc.addPage(); y = 20; }
+    addSection('LHSO-beoordeling (Landelijke Handhavingsstrategie Omgevingsrecht)');
+    addRow('Categorie overtreding', d.lhsoCategorie);
+    addRow('Ernst van de overtreding', d.lhsoErnst);
+    addRow('Gedrag overtreder', d.lhsoGedrag);
+    addRow('Segment / vak', d.lhsoSegment);
+    addRow('Geadviseerde interventie', d.lhsoInterventie);
+    addText('Motivering', d.lhsoMotivering);
   }
 
   // Fotos pagina
@@ -2421,62 +2516,13 @@ function verstuurEmail() {
   const subject = `Erfcontrole ${bedrijfstypeLabel} – ${d.bedrijfsnaam || 'Onbekend'} – ${d.datum}`;
 
   let body = '';
-  body += `⚠️ VERGEET NIET: voeg de PDF toe als bijlage (staat in je Downloads).\n`;
-  body += `${lijn}\n\n`;
-  body += `INSPECTIERAPPORT ERFCONTROLE AGRARISCH\n`;
-  body += `Waterschap Noorderzijlvest\n`;
-  body += `${lijn}\n\n`;
-
+  body += `⚠️ Vergeet niet: voeg de PDF toe als bijlage (staat in je Downloads).\n\n`;
   body += `Beste Livina,\n\n`;
-  body += `Hierbij weer een rapport voor je. Alvast bedankt voor het verwerken — we vinden het echt top hoe jij dat altijd voor ons regelt!\n\n`;
-
-  body += `INSPECTIEGEGEVENS\n`;
-  body += `Datum:           ${d.datum}\n`;
-  body += `Tijdstip:        ${d.tijdstip}\n`;
-  body += `Handhaver:       ${d.inspecteur || '—'}\n`;
-  body += `Type controle:   ${d.typeControle || '—'}\n`;
-  body += `Bedrijfstype:    ${bedrijfstypeLabel}\n\n`;
-
-  body += `BEDRIJFSGEGEVENS\n`;
-  body += `Naam:            ${d.bedrijfsnaam || '—'}\n`;
-  body += `Adres:           ${d.adres || '—'}\n`;
-  body += `Postcode/Plaats: ${d.postcode || ''} ${d.plaats || ''}\n`;
-  if (d.kvk) body += `KvK/Relatienr.:  ${d.kvk}\n`;
-  if (gpsLat) body += `GPS:             ${gpsLat}° N, ${gpsLon}° O  (±${gpsAcc}m)\n`;
-  body += `\n`;
-
-  body += `${lijn}\n`;
-  body += `AFSTROMING — BEVINDINGEN\n`;
-  body += `${lijn}\n`;
-  if (bevOvz.length > 0) {
-    bevOvz.forEach(r => { body += `${r}\n`; });
-  } else {
-    body += `  (geen bevindingen ingevuld)\n`;
-  }
-  body += `\n`;
-
-  body += `TOELICHTING\n`;
-  body += `Overtredingen/aandachtspunten:\n`;
-  body += d.overtredingen ? `  ${d.overtredingen}\n\n` : `  —\n\n`;
-  body += `Genomen acties ter plaatse:\n`;
-  body += d.acties ? `  ${d.acties}\n\n` : `  —\n\n`;
-
-  body += `${lijn}\n`;
-  body += `OORDEEL\n`;
-  body += `${lijn}\n`;
-  body += `Eindoordeel:     ${d.eindoordeel || '—'}\n`;
-  body += `Vervolgactie:    ${d.vervolgactie || '—'}\n\n`;
-
+  body += `Hierbij het rapport van de erfcontrole bij ${d.bedrijfsnaam || 'het bedrijf'} op ${d.datum}. Alle gegevens staan in de bijgevoegde PDF.\n\n`;
+  body += `Alvast bedankt voor het verwerken — we vinden het echt top hoe jij dat altijd voor ons regelt!\n\n`;
   if (extra) {
-    body += `AANVULLENDE NOTITIES\n${extra}\n\n`;
+    body += `Aanvullende notities:\n${extra}\n\n`;
   }
-
-  if (fotos.length > 0) {
-    body += `FOTO'S\n`;
-    body += `Er zijn ${fotos.length} foto('s) gemaakt. Zie de bijgevoegde PDF.\n\n`;
-  }
-
-  body += `${lijn}\n`;
   body += `Met vriendelijke groet,\n\n`;
   body += `${d.inspecteur || 'Handhaver'}\n`;
   body += `Waterschap Noorderzijlvest\n`;
@@ -2489,35 +2535,60 @@ function verstuurEmail() {
 }
 
 // ===== VERZEND ALLES =====
-async function verzendAlles() {
+function verzendAlles() {
   const selVal2 = document.getElementById('emailOntvanger').value;
   const handmatigVal2 = document.getElementById('emailHandmatig') ? document.getElementById('emailHandmatig').value.trim() : '';
   const to = selVal2 || handmatigVal2;
   if (!to) { showToast('⚠️ Selecteer of vul een ontvanger in'); return; }
 
   try {
-    showToast('⏳ PDF wordt aangemaakt...');
-    await downloadPDF();
-    await new Promise(r => setTimeout(r, 1500));
+    // Mail direct openen — dit moet in dezelfde klik gebeuren, anders blokkeert de browser 'm stilletjes
     verstuurEmail();
-    showToast('✅ Klaar! Druk op 🗑 om het formulier te wissen.');
+    showToast('✅ Mail geopend! PDF wordt gedownload...');
+
+    // PDF ernaast laten downloaden (hoeft niet af te wachten)
+    downloadPDF().catch(err => {
+      console.error('PDF mislukt:', err);
+      showToast('❌ PDF maken mislukt — heb je internet?');
+    });
   } catch (err) {
     console.error('Verzenden mislukt:', err);
-    showToast('❌ Versturen mislukt — heb je internet? (nodig voor de PDF)');
+    showToast('❌ Versturen mislukt');
   }
 }
 
-function resetFormulier(metBevestiging) {
-  if (metBevestiging && !confirm('Weet je zeker dat je alle velden wilt wissen?')) return;
+let _resetBevestigTimer = null;
+function resetFormulier(metBevestiging, btn) {
+  if (metBevestiging) {
+    if (!_resetBevestigTimer) {
+      showToast('⚠️ Klik nogmaals om echt alles te wissen');
+      if (btn) { btn.textContent = '⚠️ Nogmaals klikken om te bevestigen'; }
+      _resetBevestigTimer = setTimeout(() => {
+        _resetBevestigTimer = null;
+        if (btn) { btn.textContent = '🗑 Nieuw formulier — alles wissen'; }
+      }, 3000);
+      return;
+    }
+    clearTimeout(_resetBevestigTimer);
+    _resetBevestigTimer = null;
+    if (btn) { btn.textContent = '🗑 Nieuw formulier — alles wissen'; }
+  }
 
   // Formuliervelden leegmaken
   const velden = ['datum','tijdstip','bedrijfsnaam','contactpersoon','adres','postcode','plaats','kvk',
     'bedrijfTel','bedrijfEmail','overtredingen','acties','emailNotities',
-    'perceel','liggingOmschrijving'];
+    'perceel','liggingOmschrijving','hercontroleDatum',
+    'lhsoCategorie','lhsoErnst','lhsoGedrag','lhsoSegment','lhsoInterventie','lhsoMotivering'];
   velden.forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+
+  // Conditionele kaarten weer verbergen
+  const lhsoCard = document.getElementById('lhsoCard');
+  if (lhsoCard) lhsoCard.style.display = 'none';
+  const hercontroleWrap = document.getElementById('hercontroleDatumWrap');
+  if (hercontroleWrap) hercontroleWrap.style.display = 'none';
 
   // Datum en tijd opnieuw instellen
   const now = new Date();
@@ -2642,7 +2713,7 @@ window.buildSamenvatting = function() {
       + bevH
       + '<div style="margin-top:8px">'
       + '<div class="sam-row"><span class="sam-key">Eindoordeel</span><span class="sam-val">' + (d.eindoordeel||'—') + '</span></div>'
-      + '<div class="sam-row"><span class="sam-key">Vervolgactie</span><span class="sam-val">' + (d.vervolgactie||'—') + '</span></div>'
+      + '<div class="sam-row"><span class="sam-key">Vervolgactie</span><span class="sam-val">' + (d.vervolgactie||'—') + (d.vervolgactie === 'Hercontrole' && d.hercontroleDatum ? ' (' + d.hercontroleDatum + ')' : '') + '</span></div>'
       + '</div></div>';
   }
 
@@ -3199,6 +3270,8 @@ window.addEventListener('load', function() {
 });
 
 </script>
+
+<div id="toast"></div>
 
 <div class="bottom-bar">
   <button class="btn-prev" id="prevBtn" onclick="prevTab()" style="display:none;">‹ Vorige</button>
