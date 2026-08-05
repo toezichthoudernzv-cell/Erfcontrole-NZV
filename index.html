@@ -1541,7 +1541,13 @@ const WETSARTIKELEN = {
 const ZORGPLICHT_TEKST = 'Dit is een overtreding van de geldende regelgeving. Artikel 4.3 van de Omgevingswet stelt dat er regels worden gesteld over lozingsactiviteiten die gevolgen kunnen hebben voor de fysieke leefomgeving. Bovendien geldt er een specifieke zorgplicht volgens artikel 2.11 BAL, die inhoudt dat u als veehouder verantwoordelijk bent voor het nemen van alle nodige maatregelen om verontreiniging te voorkomen. Voor de geconstateerde lozingen op oppervlaktewater bestaat geen legale lozingsroute; legalisering is niet mogelijk.';
 
 
-function getWetsartikelen() {
+function getWetsartikelen(bedrijfstype) {
+  const term = bedrijfstype === 'akkerbouw' ? 'akkerbouwer' : 'veehouder';
+  const pasToe = (item) => ({
+    titel: item.titel,
+    tekst: item.tekst.replace(/als veehouder\b/g, 'als ' + term)
+  });
+
   const overtredingen = [];
   const actiefItems = window._actiefBevItems || window._dynamischeBevItems || BEVITEMS_VEEHOUDERIJ;
   
@@ -1559,7 +1565,7 @@ function getWetsartikelen() {
       if (erfveegWaarde === 'Ja') return; // erf is veegschoon → geen overtreding
     }
 
-    overtredingen.push(WETSARTIKELEN[item.id]);
+    overtredingen.push(pasToe(WETSARTIKELEN[item.id]));
   });
   
   // Check ook ontijzering lozing
@@ -1567,7 +1573,7 @@ function getWetsartikelen() {
   const ontijzeringLozingLijst = Array.isArray(ontijzeringLozing) ? ontijzeringLozing : [ontijzeringLozing];
   if (ontijzeringLozingLijst.some(w => w && w.includes('Opp')) && WETSARTIKELEN['ontijzering']) {
     if (!overtredingen.find(o => o.titel.includes('Ontijzer'))) {
-      overtredingen.push(WETSARTIKELEN['ontijzering']);
+      overtredingen.push(pasToe(WETSARTIKELEN['ontijzering']));
     }
   }
   
@@ -2170,7 +2176,7 @@ async function downloadPDF() {
   addText('Genomen acties ter plaatse', d.acties);
 
   // Wetsartikelen sectie
-  const wetsOvertredingen = getWetsartikelen();
+  const wetsOvertredingen = getWetsartikelen(d.bedrijfstype);
   if (wetsOvertredingen.length > 0) {
     if (y > 220) { doc.addPage(); y = 20; }
     addSection('Wettelijke grondslag overtredingen');
